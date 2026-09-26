@@ -1,0 +1,37 @@
+# Canary GPS — Localización GPS en Canarias
+
+Sitio web estático y bilingüe de Canary GPS (16 páginas en español y 16 en inglés), con la estructura y la maquetación del sitio de Retuerto y Asociados y la identidad corporativa de Canary GPS: inicio, soluciones (vehículo, mascotas, flotas, publicidad en movimiento, hogar y negocio), cómo funciona, planes y precios, quiénes somos, preguntas frecuentes, contacto y páginas legales. El contenido procede de la web original de Canary GPS.
+
+- `*.html` — versión en español (raíz del sitio).
+- `en/*.html` — versión en inglés, con los mismos nombres de archivo.
+- `assets/` — estilos, script, logotipos (horizontal, en blanco e isotipo), favicon e imagen para redes. `site.js` adapta sus textos al idioma de la página (`<html lang>`).
+- Cada página enlaza a su equivalente con el selector ES · EN de la barra superior y con `hreflang`. Incluye `sitemap.xml`, `robots.txt` y `404.html`.
+- Los botones «Elegir plan» y «Comprar dispositivo» llevan a la plataforma de pagos (`pagos.canarygps.com`).
+- Publicado con GitHub Pages (Deploy from a branch) en https://retuertographic.github.io/Cnrygps/ y https://retuertographic.github.io/Cnrygps/en/
+
+## Identidad
+
+| Color | Hex | Uso |
+|---|---|---|
+| Ocean Blue | `#0D223A` | Marca, titulares, cabeceras y pie |
+| Slate Grey | `#4B5B72` | Texto secundario |
+| Cyan Teal | `#009FA1` | Acentos (en botones se usa `#007A7C` para que el texto blanco sea legible) |
+| Pure White | `#FFFFFF` | Fondos |
+
+Tipografías: Montserrat (texto y titulares) y Yellowtail (acento manuscrito, como «Canary» en el logotipo).
+
+## Cómo editar
+
+Las páginas se generan; no se editan a mano.
+
+- `_fuente/datos.py` — datos de la empresa (correo, teléfono, zona, URL de pagos), planes y precios, pasos, soluciones, preguntas frecuentes e historia, en ES/EN.
+- `_fuente/generar.py` — plantillas de todas las páginas.
+
+```
+python3 _fuente/generar.py    # regenera todas las páginas
+```
+
+## Pendiente
+
+- Teléfono definitivo (la web original muestra `+34 000 000 000`).
+- Titular, NIF y domicilio en el aviso legal y la política de privacidad (marcados como «pendiente de completar»).

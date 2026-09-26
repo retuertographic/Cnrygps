@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://retuertographic.github.io/Cnrygps/sitemap.xml
