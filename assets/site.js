@@ -2,13 +2,11 @@
 var EN = (document.documentElement.lang || '').slice(0, 2) === 'en';
 var T = EN ? {
   abrir: 'Open menu', cerrar: 'Close menu',
-  nombre: 'Name', telefono: 'Phone', correo: 'Email', caso: 'Interested in',
-  asunto: 'Enquiry', alta: 'Subscribe me to Canary GPS news', altaAsunto: 'News subscription',
+  correo: 'Email', alta: 'Subscribe me to Canary GPS news', altaAsunto: 'News subscription',
   altaOk: 'Your email program will open to confirm the subscription.'
 } : {
   abrir: 'Abrir menú', cerrar: 'Cerrar menú',
-  nombre: 'Nombre', telefono: 'Teléfono', correo: 'Correo', caso: 'Me interesa',
-  asunto: 'Consulta', alta: 'Quiero recibir las novedades de Canary GPS', altaAsunto: 'Alta en novedades',
+  correo: 'Correo', alta: 'Quiero recibir las novedades de Canary GPS', altaAsunto: 'Alta en novedades',
   altaOk: 'Se abrirá tu programa de correo para confirmar la suscripción.'
 };
 
@@ -105,28 +103,29 @@ var T = EN ? {
   revisar();
 })();
 
-// Formularios: el sitio es estático, así que componen un correo con los datos.
+// Formularios de contacto y de afiliados: el sitio es estático, así que componen
+// un correo con cada campo rellenado (etiqueta: valor).
 (function () {
-  var form = document.getElementById('contactForm');
-  if (!form) return;
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var v = function (n) { var el = form.elements[n]; return el ? el.value.trim() : ''; };
-    var nombre = (v('nombre') + ' ' + v('apellidos')).trim();
-    var cuerpo = [
-      T.nombre + ': ' + nombre,
-      T.correo + ': ' + v('email'),
-      T.telefono + ': ' + v('telefono'),
-      T.caso + ': ' + v('caso'),
-      '',
-      v('mensaje')
-    ].join('\n');
-    var url = 'mailto:' + form.dataset.to +
-      '?subject=' + encodeURIComponent(T.asunto + ' — ' + (nombre || 'web')) +
-      '&body=' + encodeURIComponent(cuerpo);
-    var msg = document.getElementById('formMsg');
-    if (msg) msg.classList.add('show');
-    window.location.href = url;
+  document.querySelectorAll('form.js-correo').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var lineas = [];
+      var nombre = '';
+      Array.prototype.forEach.call(form.elements, function (el) {
+        if (!el.name || el.type === 'checkbox' || el.type === 'submit') return;
+        var valor = el.value.trim();
+        if (!valor) return;
+        var etiqueta = form.querySelector('label[for="' + el.id + '"]');
+        lineas.push((etiqueta ? etiqueta.textContent.trim() : el.name) + ': ' + valor);
+        if (el.name === 'f-nombre') nombre = valor;
+      });
+      var url = 'mailto:' + form.dataset.to +
+        '?subject=' + encodeURIComponent(form.dataset.asunto + ' — ' + (nombre || 'web')) +
+        '&body=' + encodeURIComponent(lineas.join('\n'));
+      var msg = form.querySelector('.form-msg');
+      if (msg) msg.classList.add('show');
+      window.location.href = url;
+    });
   });
 })();
 

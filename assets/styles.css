@@ -612,3 +612,44 @@ footer.site{background:var(--deep)}
 .foot-logo{height:48px}
 .sols{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
 .sols.mini{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+
+/* Historias (casos reales por isla) */
+.historias{align-items:stretch}
+.historia{
+  margin:0;display:flex;flex-direction:column;gap:10px;background:#fff;
+  border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:var(--radius);
+  padding:20px 22px;box-shadow:var(--shadow);
+}
+.alt .historia{background:var(--bg)}
+.historia figcaption{
+  display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--teal-ink);
+}
+.historia figcaption svg{width:15px;height:15px;flex:none}
+.historia blockquote{margin:0;color:var(--body);font-size:15.5px;line-height:1.6}
+
+/* Índice de secciones en forma de píldoras */
+.chips-nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.chips-nav a{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;
+  background:#fff;border:1px solid var(--line);color:var(--brand);font-weight:600;font-size:14px;
+  text-decoration:none;transition:.15s ease;
+}
+.chips-nav a:hover{border-color:var(--teal);background:var(--soft);color:var(--teal-ink);text-decoration:none}
+.chips-nav svg{width:16px;height:16px;color:var(--teal-ink)}
+
+/* Cabecera de bloque con icono grande */
+.bloque-ind,.contacto-pie{scroll-margin-top:90px}
+.ind-head{display:flex;gap:18px;align-items:center;max-width:none}
+.ind-head h2{margin:0 0 4px}
+.ico-grande{
+  width:58px;height:58px;border-radius:16px;flex:none;display:grid;place-items:center;
+  background:var(--brand);color:#fff;box-shadow:0 0 0 5px var(--soft);
+}
+.ico-grande svg{width:28px;height:28px}
+table.datos.pares td a{font-weight:600}
+table.datos td:first-child{font-family:inherit}
+.brand{flex:none}
+.main-nav .nav-drop{display:none}
+.main-nav .nav-mas.abierto .nav-drop{display:flex}
+.grid.historias{grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}

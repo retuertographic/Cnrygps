@@ -1,6 +1,6 @@
 # Canary GPS — Localización GPS en Canarias
 
-Sitio web estático y bilingüe de Canary GPS (16 páginas en español y 16 en inglés), con la estructura y la maquetación del sitio de Retuerto y Asociados y la identidad corporativa de Canary GPS: inicio, soluciones (vehículo, mascotas, flotas, publicidad en movimiento, hogar y negocio), cómo funciona, planes y precios, quiénes somos, preguntas frecuentes, contacto y páginas legales. El contenido procede de la web original de Canary GPS.
+Sitio web estático y bilingüe de Canary GPS (20 páginas en español y 20 en inglés), con la estructura y la maquetación del sitio de Retuerto y Asociados y la identidad corporativa de Canary GPS: inicio, casos de uso (vehículo, mascotas, flotas, publicidad en movimiento, hogar y negocio), casos por industria, historias de éxito, programa de afiliados, cómo funciona, planes y precios, quiénes somos, preguntas frecuentes, contacto y páginas legales. Todas las páginas terminan con elementos relacionados y un formulario de contacto antes del pie (en Afiliados, el de solicitud de código). `soluciones.html` redirige a `casos-de-uso.html`.
 
 - `*.html` — versión en español (raíz del sitio).
 - `en/*.html` — versión en inglés, con los mismos nombres de archivo.
@@ -25,6 +25,7 @@ Tipografías: Montserrat (texto y titulares) y Yellowtail (acento manuscrito, co
 Las páginas se generan; no se editan a mano.
 
 - `_fuente/datos.py` — datos de la empresa (correo, teléfono, zona, URL de pagos), planes y precios, pasos, soluciones, preguntas frecuentes e historia, en ES/EN.
+- `_fuente/datos_casos.py` — industrias, historias de éxito y programa de afiliados (niveles, pasos y preguntas), en ES/EN.
 - `_fuente/generar.py` — plantillas de todas las páginas.
 
 ```

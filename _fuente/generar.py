@@ -8,6 +8,8 @@ from html import escape
 
 from datos import (EMPRESA, IMG, PLANES, PRECIO_EN, PASOS, DISPOSITIVO,
                    FAQ_GENERAL, SOLUCIONES, VALORES, HISTORIA)
+from datos_casos import (INDUSTRIAS, HISTORIAS_EXITO, AFI_PASOS, AFI_NIVELES,
+                         AFI_FAQ, AFI_CANALES)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANIO = 2026
@@ -40,6 +42,11 @@ _P = {
     'pregunta': '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4"/><path d="M12 16.6v.1"/>',
     'personas': '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M15.5 5.3a3 3 0 0 1 0 5.4M17.5 19a5.5 5.5 0 0 0-2.5-4.6"/>',
     'etiqueta': '<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5z"/><circle cx="8" cy="8.5" r="1.3"/>',
+    'casco': '<path d="M3.5 17.5h17"/><path d="M5 17.5a7 7 0 0 1 14 0"/><path d="M10 10.8V7h4v3.8"/>',
+    'tienda': '<path d="M3.5 9.5 5 4.5h14l1.5 5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12v8.5h14V12"/><path d="M10 20.5v-5h4v5"/>',
+    'llave': '<circle cx="8" cy="15" r="4"/><path d="m11 12 8.5-8.5"/><path d="m16.5 6.5 2.5 2.5M14 9l2 2"/>',
+    'estrella': '<path d="m12 3.5 2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.8l6-.8z"/>',
+    'euro': '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.8a4 4 0 1 0 0 6.4"/><path d="M7.5 11h6M7.5 13.5h6"/>',
     'engranaje': '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
 }
 
@@ -74,9 +81,11 @@ def e(s):
 # ---------------------------------------------------------------- Menú
 NAV = [
     ('index', ('Inicio', 'Home')),
-    ('soluciones', ('Soluciones', 'Solutions')),
+    ('casos-de-uso', ('Casos de uso', 'Use cases')),
+    ('historias-de-exito', ('Historias de éxito', 'Success stories')),
     ('como-funciona', ('Cómo funciona', 'How it works')),
     ('planes', ('Planes', 'Plans')),
+    ('afiliados', ('Afiliados', 'Affiliates')),
     ('quienes-somos', ('Quiénes somos', 'About us')),
     ('preguntas-frecuentes', ('Preguntas frecuentes', 'FAQ')),
     ('contacto', ('Contacto', 'Contact')),
@@ -91,7 +100,7 @@ def pago(tipo, plan=None):
 
 
 # ---------------------------------------------------------------- Esqueleto
-def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None):
+def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None, form=True):
     base = EMPRESA['base_url']
     url_es = base + slug + '.html'
     url_en = base + 'en/' + slug + '.html'
@@ -105,11 +114,19 @@ def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None):
             '<a href="en/%s.html" hreflang="en" lang="en" title="English">EN</a>' % (slug, slug))
     sol_links = ''.join(
         '<li><a href="%s.html">%s<span>%s</span></a></li>' % (s['slug'], ico(s['ico']), l.t(s['nombre']))
-        for s in SOLUCIONES)
+        for s in SOLUCIONES) + ''.join(
+        '<li><a href="%s.html">%s<span>%s</span></a></li>' % (s, ico(i), l.t(n)) for s, i, n in [
+            ('casos-de-uso', 'estrella', ('Casos de uso', 'Use cases')),
+            ('industrias', 'tienda', ('Por industria', 'By industry')),
+        ])
+    if form:
+        cuerpo += form_contacto(l)
     emp_links = ''.join(
         '<li><a href="%s.html">%s<span>%s</span></a></li>' % (s, ico(i), l.t(n)) for s, i, n in [
             ('como-funciona', 'engranaje', ('Cómo funciona', 'How it works')),
             ('planes', 'etiqueta', ('Planes', 'Plans')),
+            ('historias-de-exito', 'corazon', ('Historias de éxito', 'Success stories')),
+            ('afiliados', 'euro', ('Programa de afiliados', 'Affiliate programme')),
             ('quienes-somos', 'personas', ('Quiénes somos', 'About us')),
             ('preguntas-frecuentes', 'pregunta', ('Preguntas frecuentes', 'FAQ')),
             ('contacto', 'mail', ('Contacto', 'Contact')),
@@ -304,6 +321,7 @@ def p_index(l):
     <p>{l.t(('Un mismo dispositivo para cinco necesidades distintas. Entra en la tuya para ver cómo funciona.', 'One device for five different needs. Open yours to see how it works.'))}</p>
   </div>
   <div class="grid g3 sols">{sols}</div>
+  <div class="pie-seccion">{btn('casos-de-uso.html', l.t(('Ver todos los casos de uso', 'See all use cases')), 'btn-ghost', 'flecha')}{btn('industrias.html', l.t(('Casos por industria', 'Use cases by industry')), 'btn-ghost', 'tienda')}</div>
 </div></section>
 
 <section class="alt"><div class="wrap">
@@ -352,9 +370,19 @@ def p_index(l):
   <p class="note-inline" style="margin-top:18px">{l.t(('Precios con IGIC incluido para clientes en Canarias. El dispositivo se compra aparte, con pago único.', 'Prices include IGIC for customers in the Canary Islands. The device is bought separately, with a one-off payment.'))} <a href="planes.html">{l.t(('Ver planes', 'See plans'))}</a></p>
 </div></section>
 
+<section class="alt"><div class="wrap">
+  <div class="section-head">
+    <span class="eyebrow-dark">{l.t(('Historias de éxito', 'Success stories'))}</span>
+    <h2>{l.t(('Esto es lo que pasa cuando no pierdes de vista lo que te importa', 'This is what happens when you never lose sight of what matters to you'))}</h2>
+  </div>
+  {historias(l, [HISTORIAS_EXITO['solucion-vehiculo'][0], HISTORIAS_EXITO['solucion-mascotas'][0], HISTORIAS_EXITO['solucion-flotas'][0]])}
+  <div class="pie-seccion">{btn('historias-de-exito.html', l.t(('Ver todas las historias', 'See all stories')), 'btn-ghost', 'flecha')}</div>
+</div></section>
+
 {panel(l, l.t(('¿Listo para no perderlo de vista?', 'Ready to never lose sight of it?')),
        l.t(('¿Tienes dudas sobre qué plan elegir, o quieres hablar de una campaña de publicidad en movimiento? Cuéntanos qué necesitas.', 'Not sure which plan to choose, or want to talk about an advertising-on-the-move campaign? Tell us what you need.')),
-       btn('planes.html', l.t(('Ver planes', 'See plans')), icono='etiqueta') + btn('contacto.html', l.t(('Hablemos', 'Let’s talk')), 'btn-line', 'mail'))}
+       btn('planes.html', l.t(('Ver planes', 'See plans')), icono='etiqueta') + btn('#escribenos', l.t(('Hablemos', 'Let’s talk')), 'btn-line', 'mail'))}
+{relacionados(l, ['casos-de-uso', 'historias-de-exito', 'afiliados'])}
 '''
     return pagina(l, 'index', l.t(('Canary GPS — Localización GPS para tu coche, mascota o negocio en Canarias',
                                    'Canary GPS — GPS tracking for your car, pet or business in the Canary Islands')),
@@ -364,25 +392,19 @@ def p_index(l):
 
 
 def p_soluciones(l):
-    sols = ''.join(tarjeta_solucion(l, s) for s in SOLUCIONES)
-    cuerpo = page_head(l, l.t(('Soluciones', 'Solutions')),
-                       l.t(('Tu coche, tu negocio, tu mascota. Un solo dispositivo, sin instalación, sin depender de la luz ni del wifi.',
-                            'Your car, your business, your pet. One device, no installation, no reliance on mains power or wifi.')),
-                       [('', l.t(('Soluciones', 'Solutions')))]) + f'''
-<section><div class="wrap">
-  <div class="section-head">
-    <h2>{l.t(('Elige tu caso', 'Choose your case'))}</h2>
-    <p>{l.t(('Entra en cada solución para ver cómo se coloca el dispositivo y qué avisos recibes. Cuando lo tengas claro, elige tu plan.', 'Open each solution to see how the device is fitted and what alerts you get. When you are ready, choose your plan.'))}</p>
-  </div>
-  <div class="grid g3 sols">{sols}</div>
-</div></section>
-''' + panel(l, l.t(('¿No sabes cuál es el tuyo?', 'Not sure which one is yours?')),
-            l.t(('Cuéntanos qué quieres tener localizado y te decimos cómo colocarlo y qué plan te encaja.', 'Tell us what you want to keep track of and we’ll tell you how to fit it and which plan suits you.')),
-            btn('contacto.html', l.t(('Habla con nosotros', 'Talk to us')), icono='mail') + btn('planes.html', l.t(('Ver planes', 'See plans')), 'btn-line'))
-    return pagina(l, 'soluciones', l.t(('Soluciones | Canary GPS', 'Solutions | Canary GPS')),
-                  l.t(('Vehículo, mascotas, flotas, publicidad en movimiento y hogar y negocio: un solo dispositivo GPS para cada caso.',
-                       'Vehicle, pets, fleets, advertising on the move and home and business: one GPS device for every case.')),
-                  cuerpo, 'soluciones')
+    """La antigua página «Soluciones» redirige a «Casos de uso»."""
+    return f'''<!DOCTYPE html>
+<html lang="{l.lang}">
+<head>
+<meta charset="utf-8">
+<title>Canary GPS</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="{EMPRESA['base_url']}{'en/' if l.en else ''}casos-de-uso.html">
+<meta http-equiv="refresh" content="0; url=casos-de-uso.html">
+</head>
+<body><p><a href="casos-de-uso.html">{l.t(('Casos de uso', 'Use cases'))}</a></p></body>
+</html>
+'''
 
 
 def p_solucion(l, s):
@@ -409,7 +431,7 @@ def p_solucion(l, s):
 </div></section>'''
     otras = ''.join(tarjeta_solucion(l, o) for o in SOLUCIONES if o is not s)
     cuerpo = page_head(l, l.t(s['titulo']), l.t(s['resumen']),
-                       [('soluciones.html', l.t(('Soluciones', 'Solutions'))), ('', l.t(s['nombre']))],
+                       [('casos-de-uso.html', l.t(('Casos de uso', 'Use cases'))), ('', l.t(s['nombre']))],
                        img=s['img'], antetitulo=l.t(s['antetitulo'])) + f'''
 <section><div class="wrap"><div class="grid g2" style="gap:44px;align-items:center">
   <div>
@@ -425,15 +447,20 @@ def p_solucion(l, s):
   {pasos(l, s['pasos'])}
 </div></section>
 {extra}
+<section><div class="wrap">
+  <div class="section-head"><span class="eyebrow-dark">{l.t(('Historias de éxito', 'Success stories'))}</span><h2>{l.t(('Ya les ha pasado', 'It’s already happened to them'))}</h2></div>
+  {historias(l, HISTORIAS_EXITO[s['slug']][:3])}
+  <div class="pie-seccion">{btn('historias-de-exito.html#' + s['slug'], l.t(('Ver más historias', 'See more stories')), 'btn-ghost', 'flecha')}</div>
+</div></section>
 {panel(l, l.t(s['cta']), l.t(('Planes desde 3,50 €/mes con IGIC incluido. Sin instalación y sin cables.', 'Plans from €3.50/month including IGIC. No installation and no cables.')), cta + btn('contacto.html', l.t(('Contacto', 'Contact')), 'btn-line'))}
 
 <section><div class="wrap">
   <div class="section-head"><h2>{l.t(('Otras soluciones', 'Other solutions'))}</h2></div>
   <div class="grid g4 sols mini">{otras}</div>
-  <div class="pie-seccion">{btn('soluciones.html', l.t(('Ver todas', 'See all')), 'btn-ghost', 'flecha')}</div>
+  <div class="pie-seccion">{btn('casos-de-uso.html', l.t(('Ver todos los casos de uso', 'See all use cases')), 'btn-ghost', 'flecha')}</div>
 </div></section>
 '''
-    return pagina(l, s['slug'], '%s | Canary GPS' % l.t(s['nombre']), l.t(s['resumen']), cuerpo, 'soluciones')
+    return pagina(l, s['slug'], '%s | Canary GPS' % l.t(s['nombre']), l.t(s['resumen']), cuerpo, 'casos-de-uso')
 
 
 def p_como(l):
@@ -538,46 +565,288 @@ def p_faq(l):
 
 
 def p_contacto(l):
-    opciones = ''.join('<option>%s</option>' % l.t(s['nombre']) for s in SOLUCIONES)
     cuerpo = page_head(l, l.t(('Habla con nosotros', 'Talk to us')),
                        l.t(('¿Tienes dudas sobre qué plan elegir, o quieres hablar de una campaña de publicidad en movimiento? Cuéntanos qué necesitas.',
                             'Not sure which plan to choose, or want to talk about an advertising-on-the-move campaign? Tell us what you need.')),
-                       [('', l.t(('Contacto', 'Contact')))]) + f'''
-<section><div class="wrap"><div class="grid g2" style="gap:44px;align-items:start">
-  <div class="card form-card" id="escribenos">
-    <h2 style="font-size:24px">{l.t(('Escríbenos', 'Write to us'))}</h2>
-    <form class="contact" id="contactForm" data-to="{EMPRESA['email']}" action="mailto:{EMPRESA['email']}" method="post" enctype="text/plain">
+                       [('', l.t(('Contacto', 'Contact')))], img='hogar', antetitulo=l.t(('Contacto', 'Contact')))
+    cuerpo += form_contacto(l, titulo=l.t(('Escríbenos', 'Write to us')),
+                            texto=l.t(('Te respondemos por correo o por teléfono, como prefieras.', 'We’ll reply by email or phone, whichever you prefer.')))
+    cuerpo += f'''
+<section class="tight"><div class="wrap"><div class="note"><p>{l.t(('¿Ya sabes lo que quieres? Puedes', 'Already know what you want? You can'))} <a href="planes.html">{l.t(('elegir tu plan', 'choose your plan'))}</a> {l.t(('o', 'or'))} <a href="{e(pago('dispositivo'))}" rel="noopener">{l.t(('comprar el dispositivo', 'buy the device'))}</a> {l.t(('directamente. ¿Quieres recomendar Canary GPS?', 'directly. Want to recommend Canary GPS?'))} <a href="afiliados.html">{l.t(('Hazte afiliado', 'Become an affiliate'))}</a>.</p></div></div></section>
+''' + relacionados(l, ['casos-de-uso', 'historias-de-exito', 'afiliados'])
+    return pagina(l, 'contacto', l.t(('Contacto — Canary GPS', 'Contact — Canary GPS')),
+                  l.t(('¿Tienes dudas sobre qué plan elegir, o quieres hablar de una campaña de publicidad en movimiento? Cuéntanos qué necesitas.',
+                       'Not sure which plan to choose, or want to talk about an advertising-on-the-move campaign? Tell us what you need.')),
+                  cuerpo, 'contacto', form=False)
+
+
+# ---------------------------------------------------------------- Bloques nuevos
+def historias(l, lista):
+    return '<div class="grid g3 historias">' + ''.join(
+        '<figure class="historia"><figcaption>%s%s</figcaption><blockquote>%s</blockquote></figure>'
+        % (ico('pin'), l.t((le, len_)), l.t((te, ten))) for le, len_, te, ten in lista) + '</div>'
+
+
+def solucion(slug):
+    return next(x for x in SOLUCIONES if x['slug'] == slug)
+
+
+def tarjeta_rel(l, href, img, icono, titulo, texto):
+    return f'''<a class="card sol" href="{href}">
+  <span class="sol-img"><img src="{IMG[img]}" alt="" loading="lazy" width="800" height="533"></span>
+  <span class="sol-txt">
+    <span class="ico">{ico(icono)}</span>
+    <h3>{titulo}</h3><p>{texto}</p>
+    <span class="more">{l.t(('Saber más', 'Learn more'))} {ico('flecha')}</span>
+  </span>
+</a>'''
+
+
+REL = {
+    'casos-de-uso': ('casos-de-uso.html', 'vehiculo', 'estrella', ('Casos de uso', 'Use cases'),
+                     ('Un mismo dispositivo, cinco maneras de protegerte.', 'One device, five ways to protect yourself.')),
+    'industrias': ('industrias.html', 'flotas', 'tienda', ('Casos por industria', 'Use cases by industry'),
+                   ('Esto es lo que Canary GPS resuelve según tu sector.', 'This is what Canary GPS solves in your sector.')),
+    'historias-de-exito': ('historias-de-exito.html', 'mascotas', 'corazon', ('Historias de éxito', 'Success stories'),
+                           ('Gente real de las siete islas que no perdió de vista lo que le importa.', 'Real people from all seven islands who never lost sight of what matters to them.')),
+    'afiliados': ('afiliados.html', 'publicidad', 'euro', ('Programa de afiliados', 'Affiliate programme'),
+                  ('Gana una comisión recurrente por cada cliente que traigas.', 'Earn recurring commission for every customer you bring in.')),
+    'planes': ('planes.html', 'hogar', 'etiqueta', ('Planes y precios', 'Plans and prices'),
+               ('Desde 3,50 € al mes, IGIC incluido. Sin sorpresas.', 'From €3.50 a month, IGIC included. No surprises.')),
+}
+
+
+def relacionados(l, claves, titulo=('También te puede interesar', 'You may also be interested in')):
+    cards = ''.join(tarjeta_rel(l, h, i, ic, l.t(t), l.t(x)) for h, i, ic, t, x in (REL[c] for c in claves))
+    return f'''<section><div class="wrap">
+  <div class="section-head"><h2>{l.t(titulo)}</h2></div>
+  <div class="grid g3 sols mini">{cards}</div>
+</div></section>'''
+
+
+def campo(id_, etiqueta, tipo='text', req=True, extra=''):
+    t = '' if tipo == 'text' else ' type="%s"' % tipo
+    return '<div class="field"><label for="%s">%s</label><input id="%s" name="%s"%s%s%s></div>' % (
+        id_, etiqueta, id_, id_, t, ' required' if req else '', extra)
+
+
+def form_contacto(l, titulo=None, texto=None, afiliado=False):
+    """Formulario de contacto que va siempre antes del pie."""
+    consent = f'''<label class="consent"><input type="checkbox" name="consent" required> <span>{l.t(('He leído y acepto la', 'I have read and accept the'))} <a href="politica-de-privacidad.html">{l.t(('política de privacidad', 'privacy policy'))}</a>.</span></label>'''
+    aviso = f'''<p class="form-msg" role="status">{l.t(('Se abrirá tu programa de correo con el mensaje ya redactado. Si no ocurre nada, escríbenos a', 'Your email program will open with the message ready to send. If nothing happens, write to us at'))} <a href="mailto:{EMPRESA['email']}">{EMPRESA['email']}</a>.</p>'''
+    if afiliado:
+        titulo = titulo or l.t(('Solicita tu código de afiliado', 'Apply for your affiliate code'))
+        texto = texto or l.t(('Cuéntanos un poco sobre ti y te damos de alta.', 'Tell us a bit about yourself and we’ll sign you up.'))
+        canales = ''.join('<option>%s</option>' % l.t(c) for c in AFI_CANALES)
+        campos = f'''{campo('f-nombre', l.t(('Nombre completo', 'Full name')), extra=' autocomplete="name"')}
       <div class="row2">
-        <div class="field"><label for="nombre">{l.t(('Nombre', 'First name'))}</label><input id="nombre" name="nombre" required autocomplete="given-name"></div>
-        <div class="field"><label for="apellidos">{l.t(('Apellidos', 'Surname'))}</label><input id="apellidos" name="apellidos" autocomplete="family-name"></div>
+        {campo('f-email', 'Email', 'email', extra=' autocomplete="email"')}
+        {campo('f-telefono', l.t(('Teléfono (opcional)', 'Phone (optional)')), 'tel', False, ' autocomplete="tel"')}
+      </div>
+      <div class="field"><label for="f-canal">{l.t(('¿Cómo piensas traer clientes?', 'How do you plan to bring in customers?'))}</label>
+        <select id="f-canal" name="f-canal" required><option value="">{l.t(('Selecciona una opción', 'Choose an option'))}</option>{canales}</select></div>
+      <div class="field"><label for="f-mensaje">{l.t(('Mensaje (opcional)', 'Message (optional)'))}</label><textarea id="f-mensaje" name="f-mensaje"></textarea></div>'''
+        asunto = l.t(('Solicitud de código de afiliado', 'Affiliate code application'))
+        boton = l.t(('Enviar solicitud', 'Send application'))
+        ancla = 'solicitud'
+    else:
+        titulo = titulo or l.t(('Habla con nosotros', 'Talk to us'))
+        texto = texto or l.t(('¿Tienes dudas sobre qué plan elegir, o quieres hablar de una campaña de publicidad en movimiento? Cuéntanos qué necesitas.',
+                              'Not sure which plan to choose, or want to talk about an advertising-on-the-move campaign? Tell us what you need.'))
+        opciones = ''.join('<option>%s</option>' % l.t(x['nombre']) for x in SOLUCIONES)
+        campos = f'''<div class="row2">
+        {campo('f-nombre', l.t(('Nombre', 'First name')), extra=' autocomplete="given-name"')}
+        {campo('f-apellidos', l.t(('Apellidos', 'Surname')), req=False, extra=' autocomplete="family-name"')}
       </div>
       <div class="row2">
-        <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="email"></div>
-        <div class="field"><label for="tel">{l.t(('Teléfono (opcional)', 'Phone (optional)'))}</label><input id="tel" name="telefono" type="tel" autocomplete="tel"></div>
+        {campo('f-email', 'Email', 'email', extra=' autocomplete="email"')}
+        {campo('f-telefono', l.t(('Teléfono (opcional)', 'Phone (optional)')), 'tel', False, ' autocomplete="tel"')}
       </div>
-      <div class="field"><label for="caso">{l.t(('¿Qué te interesa?', 'What are you interested in?'))}</label>
-        <select id="caso" name="caso"><option value="">{l.t(('Selecciona una opción', 'Choose an option'))}</option>{opciones}<option>{l.t(('Planes y precios', 'Plans and prices'))}</option><option>{l.t(('Otro', 'Other'))}</option></select>
-      </div>
-      <div class="field"><label for="msg">{l.t(('Mensaje', 'Message'))}</label><textarea id="msg" name="mensaje" required></textarea></div>
-      <label class="consent"><input type="checkbox" name="consent" required> <span>{l.t(('He leído y acepto la', 'I have read and accept the'))} <a href="politica-de-privacidad.html">{l.t(('política de privacidad', 'privacy policy'))}</a>.</span></label>
-      <button class="btn btn-primary" type="submit">{ico('mail')}{l.t(('Enviar mensaje', 'Send message'))}</button>
-      <p class="form-msg" id="formMsg">{l.t(('Se abrirá tu programa de correo con el mensaje ya redactado. Si no ocurre nada, escríbenos a', 'Your email program will open with the message ready to send. If nothing happens, write to us at'))} <a href="mailto:{EMPRESA['email']}">{EMPRESA['email']}</a>.</p>
-    </form>
-  </div>
+      <div class="field"><label for="f-caso">{l.t(('¿Qué te interesa?', 'What are you interested in?'))}</label>
+        <select id="f-caso" name="f-caso"><option value="">{l.t(('Selecciona una opción', 'Choose an option'))}</option>{opciones}<option>{l.t(('Planes y precios', 'Plans and prices'))}</option><option>{l.t(('Programa de afiliados', 'Affiliate programme'))}</option><option>{l.t(('Otro', 'Other'))}</option></select></div>
+      <div class="field"><label for="f-mensaje">{l.t(('Mensaje', 'Message'))}</label><textarea id="f-mensaje" name="f-mensaje" required></textarea></div>'''
+        asunto = l.t(('Consulta', 'Enquiry'))
+        boton = l.t(('Enviar mensaje', 'Send message'))
+        ancla = 'escribenos'
+    return f'''
+<section class="alt contacto-pie" id="{ancla}"><div class="wrap"><div class="grid g2" style="gap:44px;align-items:start">
   <div>
-    <ul class="info-list">
+    <span class="eyebrow-dark">{l.t(('Contacto', 'Contact'))}</span>
+    <h2>{titulo}</h2>
+    <p class="entradilla">{texto}</p>
+    <ul class="info-list" style="margin-top:26px">
       <li><span class="ico">{ico('pin')}</span><div><b>{l.t(('Dónde estamos', 'Where we are'))}</b><span>{l.t(EMPRESA['zona'])}</span></div></li>
       <li><span class="ico">{ico('tel')}</span><div><b>{l.t(('Llámanos', 'Call us'))}</b><span><a href="tel:{EMPRESA['telefono_href']}">{EMPRESA['telefono']}</a></span></div></li>
       <li><span class="ico">{ico('mail')}</span><div><b>{l.t(('Escríbenos', 'Email us'))}</b><span><a href="mailto:{EMPRESA['email']}">{EMPRESA['email']}</a></span></div></li>
     </ul>
-    <div class="note" style="margin-top:28px"><p>{l.t(('¿Ya sabes lo que quieres? Puedes', 'Already know what you want? You can'))} <a href="planes.html">{l.t(('elegir tu plan', 'choose your plan'))}</a> {l.t(('o', 'or'))} <a href="{e(pago('dispositivo'))}" rel="noopener">{l.t(('comprar el dispositivo', 'buy the device'))}</a> {l.t(('directamente.', 'directly.'))}</p></div>
   </div>
+  <div class="card form-card">
+    <form class="contact js-correo" data-to="{EMPRESA['email']}" data-asunto="{e(asunto)}" action="mailto:{EMPRESA['email']}" method="post" enctype="text/plain">
+      {campos}
+      {consent}
+      <button class="btn btn-primary" type="submit">{ico('mail')}{boton}</button>
+      {aviso}
+    </form>
+  </div>
+</div></div></section>'''
+
+
+def tabla_industrias(l, enlazar_historias=True):
+    filas = ''
+    for ind in INDUSTRIAS:
+        sols = ' · '.join('<a href="%s.html">%s</a>' % (x, l.t(solucion(x)['nombre'])) for x in ind['soluciones'])
+        nombre = '<a href="industrias.html#%s">%s</a>' % (ind['id'], l.t(ind['nombre'])) if enlazar_historias else l.t(ind['nombre'])
+        filas += '<tr><td data-col="%s">%s</td><td data-col="%s">%s</td><td data-col="%s">%s</td></tr>' % (
+            l.t(('Sector', 'Sector')), nombre, l.t(('Necesidad típica', 'Typical need')), l.t(ind['necesidad']),
+            l.t(('Solución que aplica', 'Solution')), sols)
+    return f'''<div class="tabla-scroll"><table class="datos pares">
+  <thead><tr><th>{l.t(('Sector', 'Sector'))}</th><th>{l.t(('Necesidad típica', 'Typical need'))}</th><th>{l.t(('Solución que aplica', 'Solution'))}</th></tr></thead>
+  <tbody>{filas}</tbody>
+</table></div>'''
+
+
+def p_casos(l):
+    cards = ''.join(f'''<a class="card sol" href="{x['slug']}.html">
+  <span class="sol-img"><img src="{IMG[x['img']]}" alt="" loading="lazy" width="800" height="533"></span>
+  <span class="sol-txt">
+    <span class="ico">{ico(x['ico'])}</span>
+    <h3>{l.t(x['nombre'])}</h3><p>{l.t(x['titulo'])}</p>
+    <span class="more">{l.t(('Ver más', 'See more'))} {ico('flecha')}</span>
+  </span>
+</a>''' for x in SOLUCIONES)
+    cuerpo = page_head(l, l.t(('Un mismo dispositivo, cinco maneras de protegerte', 'One device, five ways to protect yourself')),
+                       l.t(('Elige el que se ajusta a lo que quieres cuidar. Todos comparten el mismo aparato y la misma suscripción.',
+                            'Choose the one that fits what you want to look after. They all share the same device and the same subscription.')),
+                       [('', l.t(('Casos de uso', 'Use cases')))], img='vehiculo', antetitulo=l.t(('Casos de uso', 'Use cases'))) + f'''
+<section><div class="wrap">
+  <div class="grid g3 sols">{cards}</div>
+</div></section>
+<section class="alt"><div class="wrap">
+  <div class="section-head">
+    <span class="eyebrow-dark">{l.t(('Por industria', 'By industry'))}</span>
+    <h2>{l.t(('¿A qué te dedicas?', 'What do you do?'))}</h2>
+    <p>{l.t(('Esto es lo que Canary GPS resuelve según tu sector.', 'This is what Canary GPS solves in your sector.'))}</p>
+  </div>
+  {tabla_industrias(l)}
+  <div class="pie-seccion">{btn('industrias.html', l.t(('Ver casos por industria', 'See use cases by industry')), 'btn-ghost', 'flecha')}</div>
+</div></section>
+''' + panel(l, l.t(('¿No sabes cuál encaja contigo?', 'Not sure which one fits you?')),
+            l.t(('Cuéntanos qué quieres cuidar y te ayudamos a elegir.', 'Tell us what you want to look after and we’ll help you choose.')),
+            btn('#escribenos', l.t(('Escríbenos y te ayudamos a elegir', 'Write to us and we’ll help you choose')), icono='mail') +
+            btn('planes.html', l.t(('Ver planes', 'See plans')), 'btn-line')) + \
+        relacionados(l, ['industrias', 'historias-de-exito', 'afiliados'])
+    return pagina(l, 'casos-de-uso', l.t(('Casos de uso — Canary GPS', 'Use cases — Canary GPS')),
+                  l.t(('Un mismo dispositivo, cinco maneras de protegerte. Descubre cómo usar Canary GPS según lo que quieras cuidar.',
+                       'One device, five ways to protect yourself. Find out how to use Canary GPS for whatever you want to look after.')),
+                  cuerpo, 'casos-de-uso')
+
+
+def chips(items):
+    return '<nav class="chips-nav">' + ''.join('<a href="#%s">%s%s</a>' % (a, ico(i), t) for a, i, t in items) + '</nav>'
+
+
+def p_industrias(l):
+    bloques = ''
+    for n, ind in enumerate(INDUSTRIAS):
+        sols = ''.join(btn(x + '.html', l.t(solucion(x)['nombre']), 'btn-ghost', solucion(x)['ico']) for x in ind['soluciones'])
+        bloques += f'''<section class="{'alt' if n % 2 == 0 else ''} bloque-ind" id="{ind['id']}"><div class="wrap">
+  <div class="section-head ind-head">
+    <span class="ico-grande">{ico(ind['ico'])}</span>
+    <div><h2>{l.t(ind['nombre'])}</h2><p>{l.t(ind['necesidad'])}</p></div>
+  </div>
+  {historias(l, ind['historias'])}
+  <div class="pie-seccion"><div class="btn-par">{sols}</div></div>
+</div></section>'''
+    cuerpo = page_head(l, l.t(('¿A qué te dedicas?', 'What do you do?')),
+                       l.t(('Esto es lo que Canary GPS resuelve según tu sector, con casos de las siete islas.',
+                            'This is what Canary GPS solves in your sector, with examples from all seven islands.')),
+                       [('casos-de-uso.html', l.t(('Casos de uso', 'Use cases'))), ('', l.t(('Por industria', 'By industry')))],
+                       img='flotas', antetitulo=l.t(('Casos de uso por industria', 'Use cases by industry'))) + f'''
+<section><div class="wrap">
+  <div class="section-head"><h2>{l.t(('Tabla resumen', 'Summary'))}</h2></div>
+  {tabla_industrias(l)}
+  {chips([(i['id'], i['ico'], l.t(i['nombre'])) for i in INDUSTRIAS])}
+</div></section>
+{bloques}
+''' + panel(l, l.t(('¿Tu sector no aparece?', 'Is your sector missing?')),
+            l.t(('Cuéntanos a qué te dedicas y te decimos cómo te puede ayudar Canary GPS.', 'Tell us what you do and we’ll tell you how Canary GPS can help.')),
+            btn('#escribenos', l.t(('Escríbenos', 'Write to us')), icono='mail') + btn('planes.html', l.t(('Ver planes', 'See plans')), 'btn-line')) + \
+        relacionados(l, ['casos-de-uso', 'historias-de-exito', 'afiliados'])
+    return pagina(l, 'industrias', l.t(('Casos de uso por industria — Canary GPS', 'Use cases by industry — Canary GPS')),
+                  l.t(('Alquiler de vehículos, tours, reparto, obra, hostelería, segundas residencias, publicidad, particulares y mascotas: qué resuelve Canary GPS en cada sector.',
+                       'Vehicle rental, tours, delivery, construction, hospitality, second homes, advertising, private owners and pets: what Canary GPS solves in each sector.')),
+                  cuerpo, 'casos-de-uso')
+
+
+def p_historias(l):
+    bloques = ''
+    for n, x in enumerate(SOLUCIONES):
+        bloques += f'''<section class="{'alt' if n % 2 == 0 else ''} bloque-ind" id="{x['slug']}"><div class="wrap">
+  <div class="section-head ind-head">
+    <span class="ico-grande">{ico(x['ico'])}</span>
+    <div><h2>{l.t(x['nombre'])}</h2><p>{l.t(x['titulo'])}</p></div>
+  </div>
+  {historias(l, HISTORIAS_EXITO[x['slug']])}
+  <div class="pie-seccion">{btn(x['slug'] + '.html', l.t(('Ver la solución', 'See the solution')), 'btn-ghost', 'flecha')}</div>
+</div></section>'''
+    cuerpo = page_head(l, l.t(('Esto es lo que pasa cuando no pierdes de vista lo que te importa', 'This is what happens when you never lose sight of what matters to you')),
+                       l.t(('Así es como Canary GPS ayuda a gente real a no perder de vista lo que le importa, en las siete islas.',
+                            'This is how Canary GPS helps real people keep sight of what matters to them, across all seven islands.')),
+                       [('', l.t(('Historias de éxito', 'Success stories')))], img='mascotas', antetitulo=l.t(('Historias de éxito', 'Success stories'))) + f'''
+<section class="tight"><div class="wrap">
+  {chips([(x['slug'], x['ico'], l.t(x['nombre'])) for x in SOLUCIONES])}
+</div></section>
+{bloques}
+''' + panel(l, l.t(('¿Quieres ser la próxima historia?', 'Want to be the next story?')),
+            l.t(('Planes desde 3,50 €/mes con IGIC incluido. Sin instalación y sin cables.', 'Plans from €3.50/month including IGIC. No installation and no cables.')),
+            btn('planes.html', l.t(('Ver planes', 'See plans')), icono='etiqueta') + btn('#escribenos', l.t(('Contacto', 'Contact')), 'btn-line')) + \
+        relacionados(l, ['casos-de-uso', 'industrias', 'afiliados'])
+    return pagina(l, 'historias-de-exito', l.t(('Historias de éxito — Canary GPS', 'Success stories — Canary GPS')),
+                  l.t(('Así es como Canary GPS ayuda a gente real a no perder de vista lo que le importa.',
+                       'This is how Canary GPS helps real people keep sight of what matters to them.')),
+                  cuerpo, 'historias-de-exito')
+
+
+def p_afiliados(l):
+    niveles = ''.join(f'''<div class="plan{' plan-top' if i == 2 else ''}">
+  <div class="plan-cab"><h3>{l.t(n)}</h3><span class="plan-dto">{l.t(('Nivel', 'Tier'))} {i + 1}</span></div>
+  <p class="plan-precio"><b>{c}</b><span>{l.t(('comisión', 'commission'))}</span></p>
+  <p class="plan-total">{r} {l.t(('suscripciones activas', 'active subscriptions'))}</p>
+</div>''' for i, (n, r, c) in enumerate(AFI_NIVELES))
+    cuerpo = page_head(l, l.t(('Gana cada mes, no solo una vez', 'Earn every month, not just once')),
+                       l.t(('Trae clientes con tu código y gana una comisión recurrente mientras sigan activos. Sin comprar dispositivos por adelantado.',
+                            'Bring in customers with your code and earn recurring commission while they stay active. No need to buy devices up front.')),
+                       [('', l.t(('Afiliados', 'Affiliates')))], img='publicidad', antetitulo=l.t(('Programa de afiliados', 'Affiliate programme'))) + f'''
+<section><div class="wrap"><div class="grid g2" style="gap:44px;align-items:center">
+  <div>
+    <span class="eyebrow-dark">{l.t(('Programa de afiliados', 'Affiliate programme'))}</span>
+    <p class="entradilla">{l.t(('Sin stock, sin mínimos de compra. Tu cliente paga menos con tu código y tú cobras cada mes que siga activo.', 'No stock, no minimum purchase. Your customer pays less with your code and you get paid every month they stay active.'))}</p>
+    <div class="btn-par">{btn('#solicitud', l.t(('Solicita tu código', 'Apply for your code')), icono='euro')}{btn('planes.html', l.t(('Ver planes', 'See plans')), 'btn-ghost')}</div>
+  </div>
+  <div class="foto-marco"><img src="{IMG['publicidad']}" alt="" loading="lazy" width="800" height="533"></div>
 </div></div></section>
-'''
-    return pagina(l, 'contacto', l.t(('Contacto — Canary GPS', 'Contact — Canary GPS')),
-                  l.t(('¿Tienes dudas sobre qué plan elegir, o quieres hablar de una campaña de publicidad en movimiento? Cuéntanos qué necesitas.',
-                       'Not sure which plan to choose, or want to talk about an advertising-on-the-move campaign? Tell us what you need.')),
-                  cuerpo, 'contacto')
+<section class="alt"><div class="wrap">
+  <div class="section-head"><span class="eyebrow-dark">{l.t(('Cómo funciona', 'How it works'))}</span><h2>{l.t(('Tres pasos y listo', 'Three steps and you’re set'))}</h2></div>
+  {pasos(l, AFI_PASOS)}
+</div></section>
+<section><div class="wrap">
+  <div class="section-head"><span class="eyebrow-dark">{l.t(('Niveles', 'Tiers'))}</span><h2>{l.t(('Según cuántas suscripciones activas gestiones', 'Based on how many active subscriptions you manage'))}</h2></div>
+  <div class="grid g3 planes">{niveles}</div>
+</div></section>
+<section class="tight"><div class="wrap"><div class="note nota-grande">{ico('info')}<div><b>{l.t(('Cómo se calcula', 'How it is calculated'))}</b><p>{l.t(('La comisión se calcula sobre el precio ya rebajado que paga tu cliente, no sobre el precio público — cuanto más volumen traigas, más subes de nivel automáticamente.', 'Commission is calculated on the discounted price your customer pays, not the public price. The more volume you bring in, the higher you climb, automatically.'))}</p></div></div></div></section>
+<section class="alt"><div class="wrap">
+  <div class="section-head"><h2>{l.t(('Preguntas frecuentes', 'Frequently asked questions'))}</h2></div>
+  {faq(l, AFI_FAQ)}
+</div></section>
+''' + panel(l, l.t(('¿Ya tienes cartera de clientes que podrían necesitar esto?', 'Already have customers who could need this?')),
+            l.t(('Solicita tu código y empieza a ganar comisión recurrente.', 'Apply for your code and start earning recurring commission.')),
+            btn('#solicitud', l.t(('Solicita tu código', 'Apply for your code')), icono='flecha')) + \
+        relacionados(l, ['casos-de-uso', 'historias-de-exito', 'planes'])
+    return pagina(l, 'afiliados', l.t(('Hazte afiliado — Canary GPS', 'Become an affiliate — Canary GPS')),
+                  l.t(('Gana comisión recurrente por cada cliente que traigas a Canary GPS. Sin stock, sin mínimos de compra.',
+                       'Earn recurring commission for every customer you bring to Canary GPS. No stock, no minimum purchase.')),
+                  cuerpo + form_contacto(l, afiliado=True), 'afiliados', form=False)
+
 
 
 # ---------------------------------------------------------------- Legales
@@ -666,8 +935,11 @@ def p_cookies(l):
 def lista_paginas(l):
     return [
         ('index', l.t(('Inicio', 'Home'))),
-        ('soluciones', l.t(('Soluciones', 'Solutions'))),
+        ('casos-de-uso', l.t(('Casos de uso', 'Use cases'))),
     ] + [(s['slug'], '— ' + l.t(s['nombre'])) for s in SOLUCIONES] + [
+        ('industrias', '— ' + l.t(('Casos por industria', 'Use cases by industry'))),
+        ('historias-de-exito', l.t(('Historias de éxito', 'Success stories'))),
+        ('afiliados', l.t(('Programa de afiliados', 'Affiliate programme'))),
         ('como-funciona', l.t(('Cómo funciona', 'How it works'))),
         ('planes', l.t(('Planes', 'Plans'))),
         ('quienes-somos', l.t(('Quiénes somos', 'About us'))),
@@ -692,7 +964,7 @@ def p_404(l):
     cuerpo = page_head(l, l.t(('Esta página se ha perdido', 'This page has gone missing')),
                        l.t(('Y no llevaba GPS. Vuelve al inicio o elige una sección.', 'And it wasn’t wearing a GPS. Go back home or pick a section.')),
                        [('', '404')]) + panel(l, l.t(('¿Qué buscabas?', 'What were you looking for?')), '',
-                                              btn('index.html', l.t(('Inicio', 'Home'))) + btn('soluciones.html', l.t(('Soluciones', 'Solutions')), 'btn-line') + btn('planes.html', l.t(('Planes', 'Plans')), 'btn-line'))
+                                              btn('index.html', l.t(('Inicio', 'Home'))) + btn('casos-de-uso.html', l.t(('Casos de uso', 'Use cases')), 'btn-line') + btn('planes.html', l.t(('Planes', 'Plans')), 'btn-line'))
     return pagina(l, '404', 'Canary GPS — 404', l.t(('Página no encontrada.', 'Page not found.')), cuerpo)
 
 
@@ -709,7 +981,9 @@ def main():
         l = L(lang)
         dest = os.path.join(RAIZ, 'en') if l.en else RAIZ
         paginas = {
-            'index': p_index(l), 'soluciones': p_soluciones(l), 'como-funciona': p_como(l),
+            'index': p_index(l), 'soluciones': p_soluciones(l), 'casos-de-uso': p_casos(l),
+            'industrias': p_industrias(l), 'historias-de-exito': p_historias(l), 'afiliados': p_afiliados(l),
+            'como-funciona': p_como(l),
             'planes': p_planes(l), 'quienes-somos': p_quienes(l), 'preguntas-frecuentes': p_faq(l),
             'contacto': p_contacto(l), 'aviso-legal': p_aviso(l), 'politica-de-privacidad': p_privacidad(l),
             'cookies': p_cookies(l), 'mapa-web': p_mapa(l),
