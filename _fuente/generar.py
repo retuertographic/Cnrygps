@@ -732,7 +732,7 @@ def p_casos(l):
 </div></section>
 ''' + panel(l, l.t(('¿No sabes cuál encaja contigo?', 'Not sure which one fits you?')),
             l.t(('Cuéntanos qué quieres cuidar y te ayudamos a elegir.', 'Tell us what you want to look after and we’ll help you choose.')),
-            btn('#escribenos', l.t(('Escríbenos y te ayudamos a elegir', 'Write to us and we’ll help you choose')), icono='mail') +
+            btn('contacto.html', l.t(('Escríbenos y te ayudamos a elegir', 'Write to us and we’ll help you choose')), icono='mail') +
             btn('planes.html', l.t(('Ver planes', 'See plans')), 'btn-line')) + \
         relacionados(l, ['industrias', 'historias-de-exito', 'afiliados'])
     return pagina(l, 'casos-de-uso', l.t(('Casos de uso — Canary GPS', 'Use cases — Canary GPS')),

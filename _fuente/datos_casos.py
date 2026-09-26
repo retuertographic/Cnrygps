@@ -184,7 +184,7 @@ INDUSTRIAS = [
              'La agencia de eventos de Pablo demuestra a un cliente el recorrido real de una furgoneta rotulada durante una feria.',
              'Pablo’s events agency shows a client the real route of a branded van during a trade fair.'),
             ('Santa Cruz de La Palma', 'Santa Cruz de La Palma',
-             'La anunciante local Beatriz decide doblar su inversión tras ver el informe de exposición del primer trimestre.',
+             'El anunciante local Beatriz decide doblar su inversión tras ver el informe de exposición del primer trimestre.',
              'Local advertiser Beatriz decides to double her investment after seeing the first-quarter exposure report.'),
         ],
     },
