@@ -8,6 +8,7 @@ from html import escape
 
 from datos import (EMPRESA, IMG, PLANES, PRECIO_EN, PASOS, DISPOSITIVO,
                    FAQ_GENERAL, SOLUCIONES, VALORES, HISTORIA)
+from config import GTM_ID, BISCOTTI_REABRIR
 from datos_casos import (INDUSTRIAS, HISTORIAS_EXITO, AFI_PASOS, AFI_NIVELES,
                          AFI_FAQ, AFI_CANALES)
 
@@ -136,6 +137,22 @@ def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None, form=
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Biscotti CMP Consent Banner -->
+<script src="https://api.biscotti-cmp.com/scripts/biscotti-boot.js"></script>
+<script>
+  window.BiscottiConfig = {{
+    websiteId: "601c9f30-0b75-4304-8dd9-05f9360f7583",
+    apiUrl: "https://api.biscotti-cmp.com/api/v1"
+  }};
+</script>
+<script src="https://api.biscotti-cmp.com/scripts/biscotti.min.js" defer></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
+new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+}})(window,document,'script','dataLayer','{GTM_ID}');</script>
+<!-- End Google Tag Manager -->
 <title>{e(titulo)}</title>
 <meta name="description" content="{e(descripcion)}">
 <meta property="og:title" content="{e(titulo)}">
@@ -155,6 +172,10 @@ def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None, form=
 <link rel="alternate" hreflang="x-default" href="{url_es}">
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={GTM_ID}"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <div class="topbar"><div class="wrap">
   <div class="tb-items">
     <span>{ico('pin')}{zona}</span>
@@ -213,6 +234,7 @@ def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None, form=
       · <a href="aviso-legal.html">{l.t(('Aviso legal', 'Legal notice'))}</a>
       · <a href="politica-de-privacidad.html">{l.t(('Privacidad', 'Privacy'))}</a>
       · <a href="cookies.html">{l.t(('Cookies', 'Cookies'))}</a>
+      · <a href="cookies.html" class="cookie-prefs" data-reabrir="{BISCOTTI_REABRIR}">{l.t(('Preferencias de cookies', 'Cookie preferences'))}</a>
       · <a href="mapa-web.html">{l.t(('Mapa web', 'Site map'))}</a></p>
     <p class="foot-credit">{l.t(('Desarrollado por', 'Developed by'))} Retuerto Graphic Design. Ricardo Retuerto Barrera | Spain-Germany | <a href="tel:0034922971723">0034 922 971 723</a> · <a href="tel:00493031878629">0049 30 31878629</a></p>
   </div>
@@ -918,15 +940,18 @@ def p_privacidad(l):
 
 def p_cookies(l):
     s = [
-        (l.t(('Cookies propias', 'Our own cookies')), l.t((
-            '<p>Este sitio no instala cookies propias ni utiliza herramientas de analítica o publicidad.</p>',
-            '<p>This website does not set its own cookies or use analytics or advertising tools.</p>'))),
+        (l.t(('Gestión del consentimiento', 'Consent management')), l.t((
+            '<p>Al entrar en el sitio se muestra el banner de Biscotti CMP, donde decides qué categorías de cookies aceptas. Las cookies que no son técnicas solo se activan con tu consentimiento. Puedes cambiar tu elección en cualquier momento desde el enlace «Preferencias de cookies» del pie de página.</p>',
+            '<p>When you visit the site, the Biscotti CMP banner lets you choose which cookie categories you accept. Non-essential cookies are only activated with your consent. You can change your choice at any time from the “Cookie preferences” link in the footer.</p>'))),
+        (l.t(('Analítica y etiquetas', 'Analytics and tags')), l.t((
+            '<p>Las herramientas de medición y marketing se cargan a través de Google Tag Manager, y solo las que hayas aceptado en el banner.</p>',
+            '<p>Measurement and marketing tools are loaded through Google Tag Manager, and only those you have accepted in the banner.</p>'))),
         (l.t(('Servicios de terceros', 'Third-party services')), l.t((
             '<p>Para mostrar las tipografías y las fotografías, tu navegador descarga recursos de Google Fonts (fonts.googleapis.com, fonts.gstatic.com) y de Unsplash (images.unsplash.com). Estos servicios pueden registrar tu dirección IP conforme a sus propias políticas de privacidad. La plataforma de pagos de Canary GPS puede usar cookies técnicas necesarias para completar la compra.</p>',
             '<p>To display fonts and photographs, your browser downloads resources from Google Fonts (fonts.googleapis.com, fonts.gstatic.com) and Unsplash (images.unsplash.com). These services may log your IP address under their own privacy policies. The Canary GPS payment platform may use technical cookies needed to complete a purchase.</p>'))),
         (l.t(('Cómo gestionarlas', 'How to manage them')), l.t((
-            '<p>Puedes bloquear o eliminar las cookies desde la configuración de tu navegador.</p>',
-            '<p>You can block or delete cookies from your browser settings.</p>'))),
+            '<p>Cambia tu consentimiento desde el enlace «Preferencias de cookies» del pie. También puedes bloquear o eliminar las cookies desde la configuración de tu navegador.</p>',
+            '<p>Change your consent from the “Cookie preferences” link in the footer. You can also block or delete cookies from your browser settings.</p>'))),
     ]
     return legal(l, 'cookies', l.t(('Política de cookies', 'Cookie policy')),
                  l.t(('Qué cookies y recursos de terceros utiliza este sitio.', 'Which cookies and third-party resources this website uses.')), s)

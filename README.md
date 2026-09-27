@@ -26,11 +26,16 @@ Las páginas se generan; no se editan a mano.
 
 - `_fuente/datos.py` — datos de la empresa (correo, teléfono, zona, URL de pagos), planes y precios, pasos, soluciones, preguntas frecuentes e historia, en ES/EN.
 - `_fuente/datos_casos.py` — industrias, historias de éxito y programa de afiliados (niveles, pasos y preguntas), en ES/EN.
+- `_fuente/config.py` — ID de Google Tag Manager (`GTM_ID`) y función de Biscotti CMP que reabre las preferencias de cookies (`BISCOTTI_REABRIR`).
 - `_fuente/generar.py` — plantillas de todas las páginas.
 
 ```
 python3 _fuente/generar.py    # regenera todas las páginas
 ```
+
+## Consentimiento y etiquetado
+
+Cada página carga primero el banner de Biscotti CMP y justo después Google Tag Manager (script en `<head>` y `<noscript>` tras `<body>`). No hay ningún otro script de seguimiento: todo se configura dentro del contenedor de GTM. El enlace «Preferencias de cookies» del pie reabre el panel de Biscotti.
 
 ## Pendiente
 

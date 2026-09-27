@@ -150,3 +150,23 @@ var T = EN ? {
     window.location.href = url;
   });
 })();
+
+// «Preferencias de cookies» en el pie: reabre el panel de Biscotti CMP con la
+// función indicada en data-reabrir (_fuente/config.py). Si aún no ha cargado,
+// el enlace lleva a la política de cookies.
+(function () {
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a.cookie-prefs') : null;
+    if (!a) return;
+    var partes = (a.dataset.reabrir || '').split('.');
+    var obj = window, fn = null;
+    for (var i = 0; i < partes.length && obj; i++) {
+      fn = obj[partes[i]];
+      if (i < partes.length - 1) obj = fn;
+    }
+    if (typeof fn === 'function') {
+      e.preventDefault();
+      fn.call(obj);
+    }
+  });
+})();
