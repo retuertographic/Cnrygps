@@ -1,0 +1,32 @@
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ gtm_id }}"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<div class="topbar"><div class="wrap">
+  <div class="tb-items">
+    <span>{{ ico:pin }}{{ zona }}</span>
+    <span>{{ ico:mail }}<a href="mailto:{{ email }}">{{ email }}</a></span>
+  </div>
+  <div class="tb-items">
+    <span>{{ ico:etiqueta }}{{ t: Precios con IGIC incluido || Prices include IGIC }}</span>
+    <span class="lang">{{ idiomas }}</span>
+  </div>
+</div></div>
+
+<header class="site-header"><div class="wrap">
+  <a class="brand" href="index.html">
+    <img src="{{ pre }}assets/logo.png" alt="Canary GPS" width="916" height="218">
+  </a>
+  <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="{{ t: Abrir menú || Open menu }}">{{ ico:menu }}</button>
+  <nav class="main-nav" id="mainNav" aria-label="{{ t: Navegación principal || Main navigation }}">
+    <ul>
+      {{ nav_items }}
+      <li class="nav-mas" hidden>
+        <button type="button" aria-expanded="false" aria-haspopup="true">{{ t: Más || More }} {{ ico:abajo }}</button>
+        <ul class="nav-drop"></ul>
+      </li>
+      <li class="cta"><a class="btn btn-primary" href="planes.html">{{ ico:etiqueta }}{{ t: Ver planes || See plans }}</a></li>
+    </ul>
+  </nav>
+</div></header>

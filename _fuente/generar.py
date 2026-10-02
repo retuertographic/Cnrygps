@@ -4,6 +4,7 @@
 Uso:  python3 _fuente/generar.py
 """
 import os
+import re
 from html import escape
 
 from datos import (EMPRESA, IMG, PLANES, PRECIO_EN, PASOS, DISPOSITIVO,
@@ -79,6 +80,35 @@ def e(s):
     return escape(s, quote=True)
 
 
+# ---------------------------------------------------------------- Partials
+# Plantillas en _fuente/partials/*.html con tres marcas:
+#   {{ variable }}        valor que pasa el generador (ya escapado si hace falta)
+#   {{ ico:nombre }}      icono SVG
+#   {{ t: español || english }}  texto según el idioma de la página
+PARTIALS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'partials')
+_cache = {}
+_RE_T = re.compile(r'\{\{\s*t:\s*(.*?)\s*\|\|\s*(.*?)\s*\}\}', re.S)
+_RE_ICO = re.compile(r'\{\{\s*ico:([a-z]+)\s*\}\}')
+_RE_VAR = re.compile(r'\{\{\s*([a-z_]+)\s*\}\}')
+
+
+def parcial(nombre, l, **ctx):
+    if nombre not in _cache:
+        with open(os.path.join(PARTIALS, nombre + '.html'), encoding='utf-8') as f:
+            _cache[nombre] = f.read().rstrip('\n')
+    html = _RE_T.sub(lambda m: m.group(2) if l.en else m.group(1), _cache[nombre])
+    html = _RE_ICO.sub(lambda m: ico(m.group(1)), html)
+
+    def var(m):
+        if m.group(1) not in ctx:
+            raise KeyError('Falta «%s» en el partial %s.html' % (m.group(1), nombre))
+        return str(ctx[m.group(1)])
+    html = _RE_VAR.sub(var, html)
+    if '{{' in html:
+        raise ValueError('Marca sin resolver en el partial %s.html' % nombre)
+    return html
+
+
 # ---------------------------------------------------------------- Menú
 NAV = [
     ('index', ('Inicio', 'Home')),
@@ -132,119 +162,15 @@ def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None, form=
             ('preguntas-frecuentes', 'pregunta', ('Preguntas frecuentes', 'FAQ')),
             ('contacto', 'mail', ('Contacto', 'Contact')),
         ])
-    return f'''<!DOCTYPE html>
-<html lang="{l.lang}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Biscotti CMP Consent Banner -->
-<script src="https://api.biscotti-cmp.com/scripts/biscotti-boot.js"></script>
-<script>
-  window.BiscottiConfig = {{
-    websiteId: "601c9f30-0b75-4304-8dd9-05f9360f7583",
-    apiUrl: "https://api.biscotti-cmp.com/api/v1"
-  }};
-</script>
-<script src="https://api.biscotti-cmp.com/scripts/biscotti.min.js" defer></script>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
-new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-}})(window,document,'script','dataLayer','{GTM_ID}');</script>
-<!-- End Google Tag Manager -->
-<title>{e(titulo)}</title>
-<meta name="description" content="{e(descripcion)}">
-<meta property="og:title" content="{e(titulo)}">
-<meta property="og:description" content="{e(descripcion)}">
-<meta property="og:type" content="website">
-<meta property="og:image" content="{e(og_img or base + 'assets/og.png')}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Yellowtail&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{l.pre}assets/styles.css">
-<link rel="icon" href="{l.pre}assets/favicon.ico" sizes="32x32">
-<link rel="icon" href="{l.pre}assets/favicon.png" type="image/png" sizes="256x256">
-<link rel="apple-touch-icon" href="{l.pre}assets/favicon.png">
-<meta name="theme-color" content="#0D223A">
-<link rel="alternate" hreflang="es" href="{url_es}">
-<link rel="alternate" hreflang="en" href="{url_en}">
-<link rel="alternate" hreflang="x-default" href="{url_es}">
-</head>
-<body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={GTM_ID}"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<div class="topbar"><div class="wrap">
-  <div class="tb-items">
-    <span>{ico('pin')}{zona}</span>
-    <span>{ico('mail')}<a href="mailto:{EMPRESA['email']}">{EMPRESA['email']}</a></span>
-  </div>
-  <div class="tb-items">
-    <span>{ico('etiqueta')}{l.t(('Precios con IGIC incluido', 'Prices include IGIC'))}</span>
-    <span class="lang">{otro}</span>
-  </div>
-</div></div>
-
-<header class="site-header"><div class="wrap">
-  <a class="brand" href="index.html">
-    <img src="{l.pre}assets/logo.png" alt="Canary GPS" width="916" height="218">
-  </a>
-  <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="{l.t(('Abrir menú', 'Open menu'))}">{ico('menu')}</button>
-  <nav class="main-nav" id="mainNav" aria-label="{l.t(('Navegación principal', 'Main navigation'))}">
-    <ul>
-      {nav_items}
-      <li class="nav-mas" hidden>
-        <button type="button" aria-expanded="false" aria-haspopup="true">{l.t(('Más', 'More'))} {ico('abajo')}</button>
-        <ul class="nav-drop"></ul>
-      </li>
-      <li class="cta"><a class="btn btn-primary" href="planes.html">{ico('etiqueta')}{l.t(('Ver planes', 'See plans'))}</a></li>
-    </ul>
-  </nav>
-</div></header>
-
-<main>
-{cuerpo}
-</main>
-<footer class="site"><div class="wrap">
-  <div class="foot-grid">
-    <div>
-      <img class="foot-logo" src="{l.pre}assets/logo-blanco.png" alt="Canary GPS" width="916" height="218">
-      <p>{l.t(('Localización GPS en Canarias. Que nunca pierdas de vista lo que te importa.', 'GPS tracking in the Canary Islands. Never lose sight of what matters to you.'))}</p>
-      <ul class="foot-links">
-        <li><a href="contacto.html">{ico('pin')}<span>{zona}</span></a></li>
-        <li><a href="mailto:{EMPRESA['email']}">{ico('mail')}<span>{EMPRESA['email']}</span></a></li>
-      </ul>
-      <form class="news" id="newsForm" data-to="{EMPRESA['email']}" action="mailto:{EMPRESA['email']}" method="post" enctype="text/plain">
-        <h4>{l.t(('Novedades', 'News'))}</h4>
-        <p>{l.t(('Suscríbete para conocer nuevos usos y novedades de Canary GPS.', 'Subscribe to hear about new uses and news from Canary GPS.'))}</p>
-        <div class="news-row">
-          <label class="sr-only" for="newsEmail">{l.t(('Tu correo', 'Your email'))}</label>
-          <input id="newsEmail" name="email" type="email" required placeholder="{l.t(('Tu correo', 'Your email'))}">
-          <button class="btn btn-primary" type="submit">{l.t(('Suscribirse', 'Subscribe'))}</button>
-        </div>
-      </form>
-    </div>
-    <div><h4>{l.t(('Soluciones', 'Solutions'))}</h4><ul class="foot-links">{sol_links}</ul></div>
-    <div><h4>{l.t(('Empresa', 'Company'))}</h4><ul class="foot-links">{emp_links}</ul></div>
-  </div>
-  <div class="foot-bottom">
-    <p class="foot-legal-text">© {ANIO} Canary GPS. {l.t(('Precios mostrados con IGIC incluido (Canarias). Todos los derechos reservados.', 'Prices shown include IGIC (Canary Islands). All rights reserved.'))}
-      · <a href="aviso-legal.html">{l.t(('Aviso legal', 'Legal notice'))}</a>
-      · <a href="politica-de-privacidad.html">{l.t(('Privacidad', 'Privacy'))}</a>
-      · <a href="cookies.html">{l.t(('Cookies', 'Cookies'))}</a>
-      · <a href="cookies.html" class="cookie-prefs" data-reabrir="{BISCOTTI_REABRIR}">{l.t(('Preferencias de cookies', 'Cookie preferences'))}</a>
-      · <a href="mapa-web.html">{l.t(('Mapa web', 'Site map'))}</a></p>
-    <p class="foot-credit">{l.t(('Desarrollado por', 'Developed by'))} Retuerto Graphic Design. Ricardo Retuerto Barrera | Spain-Germany | <a href="tel:0034922971723">0034 922 971 723</a> · <a href="tel:00493031878629">0049 30 31878629</a></p>
-  </div>
-</div></footer>
-<button class="arriba" type="button" id="irArriba" hidden aria-label="{l.t(('Volver arriba', 'Back to top'))}" title="{l.t(('Volver arriba', 'Back to top'))}">{ico('arriba')}</button>
-
-<script src="{l.pre}assets/site.js"></script>
-</body>
-</html>
-'''
+    comun = dict(pre=l.pre, zona=zona, email=EMPRESA['email'], gtm_id=GTM_ID)
+    return '\n'.join([
+        parcial('head', l, lang=l.lang, titulo=e(titulo), descripcion=e(descripcion),
+                og_img=e(og_img or base + 'assets/og.png'), url_es=url_es, url_en=url_en, **comun),
+        parcial('cabecera', l, idiomas=otro, nav_items=nav_items, **comun),
+        '', '<main>', cuerpo, '</main>',
+        parcial('pie', l, sol_links=sol_links, emp_links=emp_links, anio=ANIO,
+                biscotti_reabrir=BISCOTTI_REABRIR, **comun),
+    ]) + '\n'
 
 
 # ---------------------------------------------------------------- Bloques
@@ -646,28 +572,12 @@ def relacionados(l, claves, titulo=('También te puede interesar', 'You may also
 </div></section>'''
 
 
-def campo(id_, etiqueta, tipo='text', req=True, extra=''):
-    t = '' if tipo == 'text' else ' type="%s"' % tipo
-    return '<div class="field"><label for="%s">%s</label><input id="%s" name="%s"%s%s%s></div>' % (
-        id_, etiqueta, id_, id_, t, ' required' if req else '', extra)
-
-
 def form_contacto(l, titulo=None, texto=None, afiliado=False):
-    """Formulario de contacto que va siempre antes del pie."""
-    consent = f'''<label class="consent"><input type="checkbox" name="consent" required> <span>{l.t(('He leído y acepto la', 'I have read and accept the'))} <a href="politica-de-privacidad.html">{l.t(('política de privacidad', 'privacy policy'))}</a>.</span></label>'''
-    aviso = f'''<p class="form-msg" role="status">{l.t(('Se abrirá tu programa de correo con el mensaje ya redactado. Si no ocurre nada, escríbenos a', 'Your email program will open with the message ready to send. If nothing happens, write to us at'))} <a href="mailto:{EMPRESA['email']}">{EMPRESA['email']}</a>.</p>'''
+    """Formulario de contacto que va siempre antes del pie (partials/formulario.html)."""
     if afiliado:
         titulo = titulo or l.t(('Solicita tu código de afiliado', 'Apply for your affiliate code'))
         texto = texto or l.t(('Cuéntanos un poco sobre ti y te damos de alta.', 'Tell us a bit about yourself and we’ll sign you up.'))
-        canales = ''.join('<option>%s</option>' % l.t(c) for c in AFI_CANALES)
-        campos = f'''{campo('f-nombre', l.t(('Nombre completo', 'Full name')), extra=' autocomplete="name"')}
-      <div class="row2">
-        {campo('f-email', 'Email', 'email', extra=' autocomplete="email"')}
-        {campo('f-telefono', l.t(('Teléfono (opcional)', 'Phone (optional)')), 'tel', False, ' autocomplete="tel"')}
-      </div>
-      <div class="field"><label for="f-canal">{l.t(('¿Cómo piensas traer clientes?', 'How do you plan to bring in customers?'))}</label>
-        <select id="f-canal" name="f-canal" required><option value="">{l.t(('Selecciona una opción', 'Choose an option'))}</option>{canales}</select></div>
-      <div class="field"><label for="f-mensaje">{l.t(('Mensaje (opcional)', 'Message (optional)'))}</label><textarea id="f-mensaje" name="f-mensaje"></textarea></div>'''
+        campos = parcial('campos-afiliado', l, opciones=''.join('<option>%s</option>' % l.t(c) for c in AFI_CANALES))
         asunto = l.t(('Solicitud de código de afiliado', 'Affiliate code application'))
         boton = l.t(('Enviar solicitud', 'Send application'))
         ancla = 'solicitud'
@@ -675,42 +585,13 @@ def form_contacto(l, titulo=None, texto=None, afiliado=False):
         titulo = titulo or l.t(('Habla con nosotros', 'Talk to us'))
         texto = texto or l.t(('¿Tienes dudas sobre qué plan elegir, o quieres hablar de una campaña de publicidad en movimiento? Cuéntanos qué necesitas.',
                               'Not sure which plan to choose, or want to talk about an advertising-on-the-move campaign? Tell us what you need.'))
-        opciones = ''.join('<option>%s</option>' % l.t(x['nombre']) for x in SOLUCIONES)
-        campos = f'''<div class="row2">
-        {campo('f-nombre', l.t(('Nombre', 'First name')), extra=' autocomplete="given-name"')}
-        {campo('f-apellidos', l.t(('Apellidos', 'Surname')), req=False, extra=' autocomplete="family-name"')}
-      </div>
-      <div class="row2">
-        {campo('f-email', 'Email', 'email', extra=' autocomplete="email"')}
-        {campo('f-telefono', l.t(('Teléfono (opcional)', 'Phone (optional)')), 'tel', False, ' autocomplete="tel"')}
-      </div>
-      <div class="field"><label for="f-caso">{l.t(('¿Qué te interesa?', 'What are you interested in?'))}</label>
-        <select id="f-caso" name="f-caso"><option value="">{l.t(('Selecciona una opción', 'Choose an option'))}</option>{opciones}<option>{l.t(('Planes y precios', 'Plans and prices'))}</option><option>{l.t(('Programa de afiliados', 'Affiliate programme'))}</option><option>{l.t(('Otro', 'Other'))}</option></select></div>
-      <div class="field"><label for="f-mensaje">{l.t(('Mensaje', 'Message'))}</label><textarea id="f-mensaje" name="f-mensaje" required></textarea></div>'''
+        campos = parcial('campos-contacto', l, opciones=''.join('<option>%s</option>' % l.t(x['nombre']) for x in SOLUCIONES))
         asunto = l.t(('Consulta', 'Enquiry'))
         boton = l.t(('Enviar mensaje', 'Send message'))
         ancla = 'escribenos'
-    return f'''
-<section class="alt contacto-pie" id="{ancla}"><div class="wrap"><div class="grid g2" style="gap:44px;align-items:start">
-  <div>
-    <span class="eyebrow-dark">{l.t(('Contacto', 'Contact'))}</span>
-    <h2>{titulo}</h2>
-    <p class="entradilla">{texto}</p>
-    <ul class="info-list" style="margin-top:26px">
-      <li><span class="ico">{ico('pin')}</span><div><b>{l.t(('Dónde estamos', 'Where we are'))}</b><span>{l.t(EMPRESA['zona'])}</span></div></li>
-      <li><span class="ico">{ico('tel')}</span><div><b>{l.t(('Llámanos', 'Call us'))}</b><span><a href="tel:{EMPRESA['telefono_href']}">{EMPRESA['telefono']}</a></span></div></li>
-      <li><span class="ico">{ico('mail')}</span><div><b>{l.t(('Escríbenos', 'Email us'))}</b><span><a href="mailto:{EMPRESA['email']}">{EMPRESA['email']}</a></span></div></li>
-    </ul>
-  </div>
-  <div class="card form-card">
-    <form class="contact js-correo" data-to="{EMPRESA['email']}" data-asunto="{e(asunto)}" action="mailto:{EMPRESA['email']}" method="post" enctype="text/plain">
-      {campos}
-      {consent}
-      <button class="btn btn-primary" type="submit">{ico('mail')}{boton}</button>
-      {aviso}
-    </form>
-  </div>
-</div></div></section>'''
+    return parcial('formulario', l, ancla=ancla, titulo=titulo, texto=texto, campos=campos,
+                   asunto=e(asunto), boton=boton, zona=l.t(EMPRESA['zona']), email=EMPRESA['email'],
+                   telefono=EMPRESA['telefono'], telefono_href=EMPRESA['telefono_href'])
 
 
 def tabla_industrias(l, enlazar_historias=True):

@@ -1,0 +1,37 @@
+<footer class="site"><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <img class="foot-logo" src="{{ pre }}assets/logo-blanco.png" alt="Canary GPS" width="916" height="218">
+      <p>{{ t: Localización GPS en Canarias. Que nunca pierdas de vista lo que te importa. || GPS tracking in the Canary Islands. Never lose sight of what matters to you. }}</p>
+      <ul class="foot-links">
+        <li><a href="contacto.html">{{ ico:pin }}<span>{{ zona }}</span></a></li>
+        <li><a href="mailto:{{ email }}">{{ ico:mail }}<span>{{ email }}</span></a></li>
+      </ul>
+      <form class="news" id="newsForm" data-to="{{ email }}" action="mailto:{{ email }}" method="post" enctype="text/plain">
+        <h4>{{ t: Novedades || News }}</h4>
+        <p>{{ t: Suscríbete para conocer nuevos usos y novedades de Canary GPS. || Subscribe to hear about new uses and news from Canary GPS. }}</p>
+        <div class="news-row">
+          <label class="sr-only" for="newsEmail">{{ t: Tu correo || Your email }}</label>
+          <input id="newsEmail" name="email" type="email" required placeholder="{{ t: Tu correo || Your email }}">
+          <button class="btn btn-primary" type="submit">{{ t: Suscribirse || Subscribe }}</button>
+        </div>
+      </form>
+    </div>
+    <div><h4>{{ t: Soluciones || Solutions }}</h4><ul class="foot-links">{{ sol_links }}</ul></div>
+    <div><h4>{{ t: Empresa || Company }}</h4><ul class="foot-links">{{ emp_links }}</ul></div>
+  </div>
+  <div class="foot-bottom">
+    <p class="foot-legal-text">© {{ anio }} Canary GPS. {{ t: Precios mostrados con IGIC incluido (Canarias). Todos los derechos reservados. || Prices shown include IGIC (Canary Islands). All rights reserved. }}
+      · <a href="aviso-legal.html">{{ t: Aviso legal || Legal notice }}</a>
+      · <a href="politica-de-privacidad.html">{{ t: Privacidad || Privacy }}</a>
+      · <a href="cookies.html">{{ t: Cookies || Cookies }}</a>
+      · <a href="cookies.html" class="cookie-prefs" data-reabrir="{{ biscotti_reabrir }}">{{ t: Preferencias de cookies || Cookie preferences }}</a>
+      · <a href="mapa-web.html">{{ t: Mapa web || Site map }}</a></p>
+    <p class="foot-credit">{{ t: Desarrollado por || Developed by }} Retuerto Graphic Design. Ricardo Retuerto Barrera | Spain-Germany | <a href="tel:0034922971723">0034 922 971 723</a> · <a href="tel:00493031878629">0049 30 31878629</a></p>
+  </div>
+</div></footer>
+<button class="arriba" type="button" id="irArriba" hidden aria-label="{{ t: Volver arriba || Back to top }}" title="{{ t: Volver arriba || Back to top }}">{{ ico:arriba }}</button>
+
+<script src="{{ pre }}assets/site.js"></script>
+</body>
+</html>

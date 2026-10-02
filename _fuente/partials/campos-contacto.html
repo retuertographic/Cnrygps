@@ -1,0 +1,11 @@
+<div class="row2">
+        <div class="field"><label for="f-nombre">{{ t: Nombre || First name }}</label><input id="f-nombre" name="f-nombre" required autocomplete="given-name"></div>
+        <div class="field"><label for="f-apellidos">{{ t: Apellidos || Surname }}</label><input id="f-apellidos" name="f-apellidos" autocomplete="family-name"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="f-email">Email</label><input id="f-email" name="f-email" type="email" required autocomplete="email"></div>
+        <div class="field"><label for="f-telefono">{{ t: Teléfono (opcional) || Phone (optional) }}</label><input id="f-telefono" name="f-telefono" type="tel" autocomplete="tel"></div>
+      </div>
+      <div class="field"><label for="f-caso">{{ t: ¿Qué te interesa? || What are you interested in? }}</label>
+        <select id="f-caso" name="f-caso"><option value="">{{ t: Selecciona una opción || Choose an option }}</option>{{ opciones }}<option>{{ t: Planes y precios || Plans and prices }}</option><option>{{ t: Programa de afiliados || Affiliate programme }}</option><option>{{ t: Otro || Other }}</option></select></div>
+      <div class="field"><label for="f-mensaje">{{ t: Mensaje || Message }}</label><textarea id="f-mensaje" name="f-mensaje" required></textarea></div>

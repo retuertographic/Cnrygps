@@ -1,0 +1,21 @@
+
+<section class="alt contacto-pie" id="{{ ancla }}"><div class="wrap"><div class="grid g2" style="gap:44px;align-items:start">
+  <div>
+    <span class="eyebrow-dark">{{ t: Contacto || Contact }}</span>
+    <h2>{{ titulo }}</h2>
+    <p class="entradilla">{{ texto }}</p>
+    <ul class="info-list" style="margin-top:26px">
+      <li><span class="ico">{{ ico:pin }}</span><div><b>{{ t: Dónde estamos || Where we are }}</b><span>{{ zona }}</span></div></li>
+      <li><span class="ico">{{ ico:tel }}</span><div><b>{{ t: Llámanos || Call us }}</b><span><a href="tel:{{ telefono_href }}">{{ telefono }}</a></span></div></li>
+      <li><span class="ico">{{ ico:mail }}</span><div><b>{{ t: Escríbenos || Email us }}</b><span><a href="mailto:{{ email }}">{{ email }}</a></span></div></li>
+    </ul>
+  </div>
+  <div class="card form-card">
+    <form class="contact js-correo" data-to="{{ email }}" data-asunto="{{ asunto }}" action="mailto:{{ email }}" method="post" enctype="text/plain">
+      {{ campos }}
+      <label class="consent"><input type="checkbox" name="consent" required> <span>{{ t: He leído y acepto la || I have read and accept the }} <a href="politica-de-privacidad.html">{{ t: política de privacidad || privacy policy }}</a>.</span></label>
+      <button class="btn btn-primary" type="submit">{{ ico:mail }}{{ boton }}</button>
+      <p class="form-msg" role="status">{{ t: Se abrirá tu programa de correo con el mensaje ya redactado. Si no ocurre nada, escríbenos a || Your email program will open with the message ready to send. If nothing happens, write to us at }} <a href="mailto:{{ email }}">{{ email }}</a>.</p>
+    </form>
+  </div>
+</div></div></section>

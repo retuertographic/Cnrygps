@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Biscotti CMP Consent Banner -->
+<script src="https://api.biscotti-cmp.com/scripts/biscotti-boot.js"></script>
+<script>
+  window.BiscottiConfig = {
+    websiteId: "601c9f30-0b75-4304-8dd9-05f9360f7583",
+    apiUrl: "https://api.biscotti-cmp.com/api/v1"
+  };
+</script>
+<script src="https://api.biscotti-cmp.com/scripts/biscotti.min.js" defer></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','{{ gtm_id }}');</script>
+<!-- End Google Tag Manager -->
+<title>{{ titulo }}</title>
+<meta name="description" content="{{ descripcion }}">
+<meta property="og:title" content="{{ titulo }}">
+<meta property="og:description" content="{{ descripcion }}">
+<meta property="og:type" content="website">
+<meta property="og:image" content="{{ og_img }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Yellowtail&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ pre }}assets/styles.css">
+<link rel="icon" href="{{ pre }}assets/favicon.ico" sizes="32x32">
+<link rel="icon" href="{{ pre }}assets/favicon.png" type="image/png" sizes="256x256">
+<link rel="apple-touch-icon" href="{{ pre }}assets/favicon.png">
+<meta name="theme-color" content="#0D223A">
+<link rel="alternate" hreflang="es" href="{{ url_es }}">
+<link rel="alternate" hreflang="en" href="{{ url_en }}">
+<link rel="alternate" hreflang="x-default" href="{{ url_es }}">
+</head>

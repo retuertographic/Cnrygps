@@ -27,7 +27,14 @@ Las páginas se generan; no se editan a mano.
 - `_fuente/datos.py` — datos de la empresa (correo, teléfono, zona, URL de pagos), planes y precios, pasos, soluciones, preguntas frecuentes e historia, en ES/EN.
 - `_fuente/datos_casos.py` — industrias, historias de éxito y programa de afiliados (niveles, pasos y preguntas), en ES/EN.
 - `_fuente/config.py` — ID de Google Tag Manager (`GTM_ID`) y función de Biscotti CMP que reabre las preferencias de cookies (`BISCOTTI_REABRIR`).
-- `_fuente/generar.py` — plantillas de todas las páginas.
+- `_fuente/partials/` — piezas comunes de todas las páginas:
+  - `head.html` — `<head>` completo, con Biscotti CMP y Google Tag Manager.
+  - `cabecera.html` — `<noscript>` de GTM, barra superior y menú.
+  - `pie.html` — pie de página, botón «volver arriba» y `site.js`.
+  - `formulario.html`, `campos-contacto.html`, `campos-afiliado.html` — formulario que va antes del pie.
+
+  Marcas: `{{ variable }}` (valor del generador), `{{ ico:nombre }}` (icono) y `{{ t: español || english }}` (texto según idioma).
+- `_fuente/generar.py` — compone cada página: rellena los partials y genera el contenido propio de cada una.
 
 ```
 python3 _fuente/generar.py    # regenera todas las páginas
