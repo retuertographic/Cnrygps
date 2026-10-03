@@ -137,12 +137,14 @@ def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None, form=
     url_en = base + 'en/' + slug + '.html'
     zona = l.t(EMPRESA['zona'])
     nav_items = ''.join(
-        '<li><a href="%s.html"%s>%s</a></li>' % (s, ' class="active"' if s == activo else '', l.t(n))
+        '<li><a href="%s.html"%s>%s</a></li>' % (
+            s, ' class="active" aria-current="%s"' % ('page' if s == slug else 'true') if s == activo else '', l.t(n))
         for s, n in NAV)
+    destino = 'index' if slug == '404' else slug   # no existe en/404.html
     otro = ('<a href="../%s.html" hreflang="es" lang="es" title="Español">ES</a> · '
             '<a href="%s.html" hreflang="en" lang="en" aria-current="true">EN</a>' % (slug, slug)) if l.en else \
            ('<a href="%s.html" hreflang="es" lang="es" aria-current="true">ES</a> · '
-            '<a href="en/%s.html" hreflang="en" lang="en" title="English">EN</a>' % (slug, slug))
+            '<a href="en/%s.html" hreflang="en" lang="en" title="English">EN</a>' % (slug, destino))
     sol_links = ''.join(
         '<li><a href="%s.html">%s<span>%s</span></a></li>' % (s['slug'], ico(s['ico']), l.t(s['nombre']))
         for s in SOLUCIONES) + ''.join(
@@ -162,12 +164,23 @@ def pagina(l, slug, titulo, descripcion, cuerpo, activo=None, og_img=None, form=
             ('preguntas-frecuentes', 'pregunta', ('Preguntas frecuentes', 'FAQ')),
             ('contacto', 'mail', ('Contacto', 'Contact')),
         ])
+    if slug == '404':
+        enlaces_seo = '<meta name="robots" content="noindex">'
+    else:
+        actual = url_en if l.en else url_es
+        enlaces_seo = '\n'.join([
+            '<link rel="canonical" href="%s">' % actual,
+            '<meta property="og:url" content="%s">' % actual,
+            '<link rel="alternate" hreflang="es" href="%s">' % url_es,
+            '<link rel="alternate" hreflang="en" href="%s">' % url_en,
+            '<link rel="alternate" hreflang="x-default" href="%s">' % url_es,
+        ])
     comun = dict(pre=l.pre, zona=zona, email=EMPRESA['email'], gtm_id=GTM_ID)
     return '\n'.join([
         parcial('head', l, lang=l.lang, titulo=e(titulo), descripcion=e(descripcion),
-                og_img=e(og_img or base + 'assets/og.png'), url_es=url_es, url_en=url_en, **comun),
+                og_img=e(og_img or base + 'assets/og.png'), enlaces_seo=enlaces_seo, **comun),
         parcial('cabecera', l, idiomas=otro, nav_items=nav_items, **comun),
-        '', '<main>', cuerpo, '</main>',
+        '', '<main id="contenido" tabindex="-1">', cuerpo, '</main>',
         parcial('pie', l, sol_links=sol_links, emp_links=emp_links, anio=ANIO,
                 biscotti_reabrir=BISCOTTI_REABRIR, **comun),
     ]) + '\n'
@@ -218,12 +231,12 @@ def tarjetas_planes(l, destacar='anual'):
 
 def tarjeta_solucion(l, s):
     return f'''<a class="card sol" href="{s['slug']}.html">
-  <span class="sol-img"><img src="{IMG[s['img']]}" alt="" loading="lazy" width="800" height="533"></span>
-  <span class="sol-txt">
+  <div class="sol-img"><img src="{IMG[s['img']]}" alt="" loading="lazy" width="800" height="533"></div>
+  <div class="sol-txt">
     <span class="ico">{ico(s['ico'])}</span>
     <h3>{l.t(s['nombre'])}</h3><p>{l.t(s['resumen'])}</p>
     <span class="more">{l.t(('Saber más', 'Learn more'))} {ico('flecha')}</span>
-  </span>
+  </div>
 </a>'''
 
 
@@ -417,6 +430,7 @@ def p_como(l):
                        l.t(('Sin instalador, sin cables, sin conocimientos técnicos.', 'No installer, no cables, no technical knowledge needed.')),
                        [('', l.t(('Cómo funciona', 'How it works')))]) + f'''
 <section><div class="wrap">
+  <h2 class="sr-only">{l.t(('Los cuatro pasos', 'The four steps'))}</h2>
   {pasos(l, PASOS, 'g4')}
 </div></section>
 <section class="alt"><div class="wrap">
@@ -440,6 +454,7 @@ def p_planes(l):
                        l.t(('Elige la duración que mejor te encaje. Cuanto más tiempo eliges, menos pagas al mes.', 'Choose the length that suits you best. The longer you choose, the less you pay per month.')),
                        [('', l.t(('Planes', 'Plans')))]) + f'''
 <section><div class="wrap">
+  <h2 class="sr-only">{l.t(('Elige tu plan', 'Choose your plan'))}</h2>
   {tarjetas_planes(l)}
   <p class="note-inline" style="margin-top:18px">{l.t(('Precios con IGIC incluido para clientes en Canarias.', 'Prices include IGIC for customers in the Canary Islands.'))}</p>
 </div></section>
@@ -541,12 +556,12 @@ def solucion(slug):
 
 def tarjeta_rel(l, href, img, icono, titulo, texto):
     return f'''<a class="card sol" href="{href}">
-  <span class="sol-img"><img src="{IMG[img]}" alt="" loading="lazy" width="800" height="533"></span>
-  <span class="sol-txt">
+  <div class="sol-img"><img src="{IMG[img]}" alt="" loading="lazy" width="800" height="533"></div>
+  <div class="sol-txt">
     <span class="ico">{ico(icono)}</span>
     <h3>{titulo}</h3><p>{texto}</p>
     <span class="more">{l.t(('Saber más', 'Learn more'))} {ico('flecha')}</span>
-  </span>
+  </div>
 </a>'''
 
 
@@ -610,18 +625,19 @@ def tabla_industrias(l, enlazar_historias=True):
 
 def p_casos(l):
     cards = ''.join(f'''<a class="card sol" href="{x['slug']}.html">
-  <span class="sol-img"><img src="{IMG[x['img']]}" alt="" loading="lazy" width="800" height="533"></span>
-  <span class="sol-txt">
+  <div class="sol-img"><img src="{IMG[x['img']]}" alt="" loading="lazy" width="800" height="533"></div>
+  <div class="sol-txt">
     <span class="ico">{ico(x['ico'])}</span>
     <h3>{l.t(x['nombre'])}</h3><p>{l.t(x['titulo'])}</p>
     <span class="more">{l.t(('Ver más', 'See more'))} {ico('flecha')}</span>
-  </span>
+  </div>
 </a>''' for x in SOLUCIONES)
     cuerpo = page_head(l, l.t(('Un mismo dispositivo, cinco maneras de protegerte', 'One device, five ways to protect yourself')),
                        l.t(('Elige el que se ajusta a lo que quieres cuidar. Todos comparten el mismo aparato y la misma suscripción.',
                             'Choose the one that fits what you want to look after. They all share the same device and the same subscription.')),
                        [('', l.t(('Casos de uso', 'Use cases')))], img='vehiculo', antetitulo=l.t(('Casos de uso', 'Use cases'))) + f'''
 <section><div class="wrap">
+  <h2 class="sr-only">{l.t(('Soluciones', 'Solutions'))}</h2>
   <div class="grid g3 sols">{cards}</div>
 </div></section>
 <section class="alt"><div class="wrap">
@@ -761,7 +777,7 @@ def legal(l, slug, titulo, intro, secciones):
     body = ''.join('<div class="legal-sec" id="s%d"><h2>%s</h2>%s</div>' % (i, t, h) for i, (t, h) in enumerate(secciones, 1))
     cuerpo = page_head(l, titulo, intro, [('', titulo)]) + f'''
 <section><div class="wrap"><div class="legal-layout">
-  <nav class="legal-nav" aria-label="{titulo}"><h3>{l.t(('Contenido', 'Contents'))}</h3><ul class="foot-links dark">{nav}</ul></nav>
+  <nav class="legal-nav" aria-label="{titulo}"><h2 class="legal-nav-t">{l.t(('Contenido', 'Contents'))}</h2><ul class="foot-links dark">{nav}</ul></nav>
   <div class="legal-body">{body}<p class="legal-version">{l.t(('Última actualización:', 'Last updated:'))} {ANIO}.</p></div>
 </div></div></section>'''
     return pagina(l, slug, '%s — Canary GPS' % titulo, intro, cuerpo)

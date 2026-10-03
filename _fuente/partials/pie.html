@@ -8,7 +8,7 @@
         <li><a href="mailto:{{ email }}">{{ ico:mail }}<span>{{ email }}</span></a></li>
       </ul>
       <form class="news" id="newsForm" data-to="{{ email }}" action="mailto:{{ email }}" method="post" enctype="text/plain">
-        <h4>{{ t: Novedades || News }}</h4>
+        <h2 class="foot-h">{{ t: Novedades || News }}</h2>
         <p>{{ t: Suscríbete para conocer nuevos usos y novedades de Canary GPS. || Subscribe to hear about new uses and news from Canary GPS. }}</p>
         <div class="news-row">
           <label class="sr-only" for="newsEmail">{{ t: Tu correo || Your email }}</label>
@@ -17,8 +17,8 @@
         </div>
       </form>
     </div>
-    <div><h4>{{ t: Soluciones || Solutions }}</h4><ul class="foot-links">{{ sol_links }}</ul></div>
-    <div><h4>{{ t: Empresa || Company }}</h4><ul class="foot-links">{{ emp_links }}</ul></div>
+    <div><h2 class="foot-h">{{ t: Soluciones || Solutions }}</h2><ul class="foot-links">{{ sol_links }}</ul></div>
+    <div><h2 class="foot-h">{{ t: Empresa || Company }}</h2><ul class="foot-links">{{ emp_links }}</ul></div>
   </div>
   <div class="foot-bottom">
     <p class="foot-legal-text">© {{ anio }} Canary GPS. {{ t: Precios mostrados con IGIC incluido (Canarias). Todos los derechos reservados. || Prices shown include IGIC (Canary Islands). All rights reserved. }}
