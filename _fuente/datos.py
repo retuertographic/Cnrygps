@@ -12,7 +12,7 @@ EMPRESA = {
     'telefono_href': '+34000000000',
     'zona': ('Tenerife, Canarias', 'Tenerife, Canary Islands'),
     'pagos': 'https://pagos.canarygps.com/pagar.php',
-    'base_url': 'https://retuertographic.github.io/Cnrygps/',
+    'base_url': 'https://canarygps.com/',
 }
 
 IMG = {

@@ -7,7 +7,7 @@ Sitio web estático y bilingüe de Canary GPS (20 páginas en español y 20 en i
 - `assets/` — estilos, script, logotipos (horizontal, en blanco e isotipo), favicon e imagen para redes. `site.js` adapta sus textos al idioma de la página (`<html lang>`).
 - Cada página enlaza a su equivalente con el selector ES · EN de la barra superior y con `hreflang`. Incluye `sitemap.xml`, `robots.txt` y `404.html`.
 - Los botones «Elegir plan» y «Comprar dispositivo» llevan a la plataforma de pagos (`pagos.canarygps.com`).
-- Publicado con GitHub Pages (Deploy from a branch) en https://retuertographic.github.io/Cnrygps/ y https://retuertographic.github.io/Cnrygps/en/
+- Publicado con GitHub Pages (Deploy from a branch) con dominio propio: https://canarygps.com/ y https://canarygps.com/en/ (archivo `CNAME`).
 
 ## Identidad
 
