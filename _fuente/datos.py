@@ -11,8 +11,24 @@ EMPRESA = {
     'telefono': '+34 000 000 000',          # pendiente: teléfono definitivo
     'telefono_href': '+34000000000',
     'zona': ('Tenerife, Canarias', 'Tenerife, Canary Islands'),
-    'pagos': 'https://pagos.canarygps.com/pagar.php',
     'base_url': 'https://canarygps.com/',
+}
+
+# ---------------------------------------------------------------- Pago
+# De momento el cobro se hace con el «abono personalizado» de Retuerto Graphic
+# Design. Cada botón añade a la URL el importe, el concepto y la página de
+# origen; el fragmento de _fuente/wordpress/ los recoge en la tienda.
+PAGO = {
+    'url': ('https://retuertographicdesign.com/es/producto/abono-personalizado/',
+            'https://retuertographicdesign.com/product/custom-payment-amount/'),
+    # producto: (importe con punto decimal o None si no hay precio fijo, concepto)
+    'productos': {
+        'mensual': ('5.00', ('Canary GPS – Plan mensual (1 mes)', 'Canary GPS – Monthly plan (1 month)')),
+        'trimestral': ('13.50', ('Canary GPS – Plan trimestral (3 meses)', 'Canary GPS – Quarterly plan (3 months)')),
+        'semestral': ('24.00', ('Canary GPS – Plan semestral (6 meses)', 'Canary GPS – Six-monthly plan (6 months)')),
+        'anual': ('42.00', ('Canary GPS – Plan anual (12 meses)', 'Canary GPS – Annual plan (12 months)')),
+        'dispositivo': (None, ('Canary GPS – Dispositivo GPS', 'Canary GPS – GPS device')),
+    },
 }
 
 IMG = {

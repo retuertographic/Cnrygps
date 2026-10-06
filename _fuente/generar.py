@@ -6,8 +6,9 @@ Uso:  python3 _fuente/generar.py
 import os
 import re
 from html import escape
+from urllib.parse import urlencode, quote
 
-from datos import (EMPRESA, IMG, PLANES, PRECIO_EN, PASOS, DISPOSITIVO,
+from datos import (EMPRESA, PAGO, IMG, PLANES, PRECIO_EN, PASOS, DISPOSITIVO,
                    FAQ_GENERAL, SOLUCIONES, VALORES, HISTORIA)
 from config import GTM_ID, BISCOTTI_REABRIR
 from datos_casos import (INDUSTRIAS, HISTORIAS_EXITO, AFI_PASOS, AFI_NIVELES,
@@ -123,11 +124,13 @@ NAV = [
 ]
 
 
-def pago(tipo, plan=None):
-    url = EMPRESA['pagos'] + '?tipo=' + tipo
-    if plan:
-        url += '&plan=' + plan
-    return url
+def pago(l, producto, origen):
+    """Enlace al abono personalizado con importe, concepto y página de origen."""
+    importe, concepto = PAGO['productos'][producto]
+    params = [('concepto', l.t(concepto)), ('origen', origen)]
+    if importe:
+        params.insert(0, ('importe', importe))
+    return l.t(PAGO['url']) + '?' + urlencode(params, quote_via=quote)
 
 
 # ---------------------------------------------------------------- Esqueleto
@@ -214,7 +217,7 @@ def faq(l, lista):
         % (l.t(q), ico('abajo'), l.t(r)) for q, r in lista) + '</div>'
 
 
-def tarjetas_planes(l, destacar='anual'):
+def tarjetas_planes(l, origen, destacar='anual'):
     out = []
     for clave, nombre, mes, total, dto in PLANES:
         badge = '<span class="plan-dto">%s</span>' % dto if dto else ''
@@ -224,7 +227,7 @@ def tarjetas_planes(l, destacar='anual'):
   <div class="plan-cab"><h3>{l.t(nombre)}</h3>{badge}</div>
   <p class="plan-precio"><b>{l.precio(mes)}</b><span>{l.t(('/mes', '/month'))}</span></p>
   <p class="plan-total">{l.t(total)}</p>
-  <a class="btn {'btn-primary' if clave == destacar else 'btn-ghost'}" href="{e(pago('suscripcion', clave))}" rel="noopener">{ico('carrito')}{l.t(('Elegir', 'Choose'))} {l.t(nombre).lower()}</a>
+  <a class="btn {'btn-primary' if clave == destacar else 'btn-ghost'}" href="{e(pago(l, clave, origen))}" rel="noopener">{ico('carrito')}{l.t(('Elegir', 'Choose'))} {l.t(nombre).lower()}</a>
 </div>''')
     return '<div class="grid g4 planes">' + ''.join(out) + '</div>'
 
@@ -327,7 +330,7 @@ def p_index(l):
     <h2>{l.t(('Un precio claro, sin sorpresas', 'A clear price, no surprises'))}</h2>
     <p>{l.t(('Elige la duración que mejor te encaje. Cuanto más tiempo eliges, menos pagas al mes.', 'Choose the length that suits you best. The longer you choose, the less you pay per month.'))}</p>
   </div>
-  {tarjetas_planes(l)}
+  {tarjetas_planes(l, 'index')}
   <p class="note-inline" style="margin-top:18px">{l.t(('Precios con IGIC incluido para clientes en Canarias. El dispositivo se compra aparte, con pago único.', 'Prices include IGIC for customers in the Canary Islands. The device is bought separately, with a one-off payment.'))} <a href="planes.html">{l.t(('Ver planes', 'See plans'))}</a></p>
 </div></section>
 
@@ -455,7 +458,7 @@ def p_planes(l):
                        [('', l.t(('Planes', 'Plans')))]) + f'''
 <section><div class="wrap">
   <h2 class="sr-only">{l.t(('Elige tu plan', 'Choose your plan'))}</h2>
-  {tarjetas_planes(l)}
+  {tarjetas_planes(l, 'planes')}
   <p class="note-inline" style="margin-top:18px">{l.t(('Precios con IGIC incluido para clientes en Canarias.', 'Prices include IGIC for customers in the Canary Islands.'))}</p>
 </div></section>
 <section class="alt"><div class="wrap"><div class="grid g2" style="gap:44px;align-items:center">
@@ -463,7 +466,7 @@ def p_planes(l):
     <span class="eyebrow-dark">{l.t(('El dispositivo', 'The device'))}</span>
     <h2>{l.t(('El dispositivo se compra aparte, con pago único', 'The device is bought separately, with a one-off payment'))}</h2>
     <p class="entradilla">{l.t(('La suscripción da acceso a la plataforma, la app y el historial de rutas. El dispositivo se coloca en minutos y no requiere instalación.', 'The subscription gives you access to the platform, the app and route history. The device is fitted in minutes and needs no installation.'))}</p>
-    <div class="btn-par">{btn(pago('dispositivo'), l.t(('Comprar dispositivo', 'Buy the device')), icono='carrito', externo=True)}{btn('como-funciona.html', l.t(('Ver cómo funciona', 'See how it works')), 'btn-ghost', 'flecha')}</div>
+    <div class="btn-par">{btn(pago(l, 'dispositivo', 'planes'), l.t(('Comprar dispositivo', 'Buy the device')), icono='carrito', externo=True)}{btn('como-funciona.html', l.t(('Ver cómo funciona', 'See how it works')), 'btn-ghost', 'flecha')}</div>
   </div>
   <ul class="checks">{''.join('<li>%s<span><b>%s</b></span></li>' % (ico('check'), l.t(t)) for _, t in DISPOSITIVO)}</ul>
 </div></div></section>
@@ -535,7 +538,7 @@ def p_contacto(l):
     cuerpo += form_contacto(l, titulo=l.t(('Escríbenos', 'Write to us')),
                             texto=l.t(('Te respondemos por correo o por teléfono, como prefieras.', 'We’ll reply by email or phone, whichever you prefer.')))
     cuerpo += f'''
-<section class="tight"><div class="wrap"><div class="note"><p>{l.t(('¿Ya sabes lo que quieres? Puedes', 'Already know what you want? You can'))} <a href="planes.html">{l.t(('elegir tu plan', 'choose your plan'))}</a> {l.t(('o', 'or'))} <a href="{e(pago('dispositivo'))}" rel="noopener">{l.t(('comprar el dispositivo', 'buy the device'))}</a> {l.t(('directamente. ¿Quieres recomendar Canary GPS?', 'directly. Want to recommend Canary GPS?'))} <a href="afiliados.html">{l.t(('Hazte afiliado', 'Become an affiliate'))}</a>.</p></div></div></section>
+<section class="tight"><div class="wrap"><div class="note"><p>{l.t(('¿Ya sabes lo que quieres? Puedes', 'Already know what you want? You can'))} <a href="planes.html">{l.t(('elegir tu plan', 'choose your plan'))}</a> {l.t(('o', 'or'))} <a href="{e(pago(l, 'dispositivo', 'contacto'))}" rel="noopener">{l.t(('comprar el dispositivo', 'buy the device'))}</a> {l.t(('directamente. ¿Quieres recomendar Canary GPS?', 'directly. Want to recommend Canary GPS?'))} <a href="afiliados.html">{l.t(('Hazte afiliado', 'Become an affiliate'))}</a>.</p></div></div></section>
 ''' + relacionados(l, ['casos-de-uso', 'historias-de-exito', 'afiliados'])
     return pagina(l, 'contacto', l.t(('Contacto — Canary GPS', 'Contact — Canary GPS')),
                   l.t(('¿Tienes dudas sobre qué plan elegir, o quieres hablar de una campaña de publicidad en movimiento? Cuéntanos qué necesitas.',
@@ -791,8 +794,8 @@ def p_aviso(l):
             f'<p>En cumplimiento de la Ley 34/2002, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se informa de los datos del titular de este sitio web:</p><ul><li>Denominación: Canary GPS</li><li>Titular y NIF: {pend}</li><li>Domicilio: {pend}, Tenerife, Canarias</li><li>Correo electrónico: {mail}</li></ul>',
             f'<p>In accordance with Spanish Law 34/2002 on Information Society Services and Electronic Commerce (LSSI-CE), the details of the owner of this website are:</p><ul><li>Trading name: Canary GPS</li><li>Owner and tax ID: {pend}</li><li>Address: {pend}, Tenerife, Canary Islands</li><li>Email: {mail}</li></ul>'))),
         (l.t(('Objeto', 'Purpose')), l.t((
-            '<p>Este sitio informa sobre los dispositivos de localización GPS y los planes de suscripción de Canary GPS. La contratación y el pago se realizan en la plataforma de pagos de Canary GPS, que informa de sus propias condiciones antes de cada compra.</p>',
-            '<p>This website provides information about Canary GPS tracking devices and subscription plans. Purchases and payments are made on the Canary GPS payment platform, which sets out its own terms before each purchase.</p>'))),
+            '<p>Este sitio informa sobre los dispositivos de localización GPS y los planes de suscripción de Canary GPS. El pago se realiza en la tienda de Retuerto Graphic Design (retuertographicdesign.com), que informa de sus propias condiciones antes de cada compra.</p>',
+            '<p>This website provides information about Canary GPS tracking devices and subscription plans. Payment is made in the Retuerto Graphic Design shop (retuertographicdesign.com), which sets out its own terms before each purchase.</p>'))),
         (l.t(('Precios', 'Prices')), l.t((
             '<p>Los precios mostrados incluyen el IGIC aplicable a clientes en Canarias. El dispositivo se adquiere con un pago único y la suscripción se abona según la duración elegida (mensual, trimestral, semestral o anual).</p>',
             '<p>The prices shown include the IGIC applicable to customers in the Canary Islands. The device is bought with a one-off payment and the subscription is paid according to the chosen length (monthly, quarterly, six-monthly or annual).</p>'))),
@@ -844,8 +847,8 @@ def p_cookies(l):
             '<p>Las herramientas de medición y marketing se cargan a través de Google Tag Manager, y solo las que hayas aceptado en el banner.</p>',
             '<p>Measurement and marketing tools are loaded through Google Tag Manager, and only those you have accepted in the banner.</p>'))),
         (l.t(('Servicios de terceros', 'Third-party services')), l.t((
-            '<p>Para mostrar las tipografías y las fotografías, tu navegador descarga recursos de Google Fonts (fonts.googleapis.com, fonts.gstatic.com) y de Unsplash (images.unsplash.com). Estos servicios pueden registrar tu dirección IP conforme a sus propias políticas de privacidad. La plataforma de pagos de Canary GPS puede usar cookies técnicas necesarias para completar la compra.</p>',
-            '<p>To display fonts and photographs, your browser downloads resources from Google Fonts (fonts.googleapis.com, fonts.gstatic.com) and Unsplash (images.unsplash.com). These services may log your IP address under their own privacy policies. The Canary GPS payment platform may use technical cookies needed to complete a purchase.</p>'))),
+            '<p>Para mostrar las tipografías y las fotografías, tu navegador descarga recursos de Google Fonts (fonts.googleapis.com, fonts.gstatic.com) y de Unsplash (images.unsplash.com). Estos servicios pueden registrar tu dirección IP conforme a sus propias políticas de privacidad. La tienda donde se realiza el pago (retuertographicdesign.com) puede usar cookies técnicas necesarias para completar la compra.</p>',
+            '<p>To display fonts and photographs, your browser downloads resources from Google Fonts (fonts.googleapis.com, fonts.gstatic.com) and Unsplash (images.unsplash.com). These services may log your IP address under their own privacy policies. The shop where payment is made (retuertographicdesign.com) may use technical cookies needed to complete a purchase.</p>'))),
         (l.t(('Cómo gestionarlas', 'How to manage them')), l.t((
             '<p>Cambia tu consentimiento desde el enlace «Preferencias de cookies» del pie. También puedes bloquear o eliminar las cookies desde la configuración de tu navegador.</p>',
             '<p>Change your consent from the “Cookie preferences” link in the footer. You can also block or delete cookies from your browser settings.</p>'))),
