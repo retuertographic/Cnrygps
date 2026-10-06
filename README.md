@@ -6,7 +6,7 @@ Sitio web estático y bilingüe de Canary GPS (20 páginas en español y 20 en i
 - `en/*.html` — versión en inglés, con los mismos nombres de archivo.
 - `assets/` — estilos, script, logotipos (horizontal, en blanco e isotipo), favicon e imagen para redes. `site.js` adapta sus textos al idioma de la página (`<html lang>`).
 - Cada página enlaza a su equivalente con el selector ES · EN de la barra superior y con `hreflang`. Incluye `sitemap.xml`, `robots.txt` y `404.html`.
-- Los botones «Elegir plan» y «Comprar dispositivo» llevan de momento al abono personalizado de retuertographicdesign.com (ES/EN según la página) con `importe`, `concepto` y `origen` en la URL. Se configuran en `PAGO` (`_fuente/datos.py`). `_fuente/wordpress/canarygps-abono.php` es el fragmento para WordPress que rellena el importe y guarda el concepto en el pedido.
+- Los botones «Elegir plan» y «Comprar dispositivo» llevan de momento al abono personalizado de retuertographicdesign.com (ES/EN según la página) con `importe`, `concepto` y `origen` en la URL. Se configuran en `PAGO` (`_fuente/datos.py`). `_fuente/wordpress/canarygps-abono.php` es el fragmento para WordPress: rellena el importe y la «Payment reference» del formulario de WCPA con el concepto, y guarda la página de origen en el pedido.
 - Publicado con GitHub Pages (Deploy from a branch) con dominio propio: https://canarygps.com/ y https://canarygps.com/en/ (archivo `CNAME`).
 
 ## Identidad
